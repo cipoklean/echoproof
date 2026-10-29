@@ -114,7 +114,9 @@ pt-date-slash          aai-jane       raw=PASS guarded=PASS   | Sua consulta é 
 it-date-slash          aai-jane       raw=PASS guarded=PASS   | Il suo appuntamento è il 3 aprile 2026.
 fr-date-slash          aai-donatien   raw=PASS guarded=PASS   | Votre rendez-vous est le 3 avril 2026.
 fr-date-slash          aai-jane       raw=PASS guarded=PASS   | Votre rendez-vous est le 3 avril 2026.
-en-names-irish         aai-audrey     raw=FAIL guarded=FAIL tts_fault  | Siobhan, Oifa, and Niamh join the call.
-en-names-irish         aai-jane       raw=FAIL guarded=FAIL tts_fault  | Siobhan, Aifa, and Niamh joined the call.
-en-names-global        aai-audrey     raw=FAIL guarded=FAIL tts_fault  | So Chitul, Nwen, Chukwuemeka, and Sirsha are here.
-en-names-global        aai-jane       raw=FAIL guarded=FAIL tts_fault  | Zochitl, Nwin, Chukwumeka, and Sirsha are here.
+en-names-1             aai-audrey     raw=FAIL guarded=PASS tts_fault  | Siobhan, Oifa, and Niamh join the call.
+en-names-1             aai-jane       raw=FAIL guarded=PASS tts_fault  | Siobhan, Aifa, and Niamh joined the call.
+en-names-2             aai-audrey     raw=PASS guarded=PASS   | Xochitl, Chukwuemeka, and Saoirse are here.
+en-names-2             aai-jane       raw=FAIL guarded=PASS tts_fault  | Zochitl, Chukwuemeka, and Saoirse are here.
+en-names-3             aai-audrey     raw=FAIL guarded=PASS stt_disagree  | Oluwaseun and Seyi Onn have confirmed.
+en-names-3             aai-jane       raw=PASS guarded=PASS   | Oluwaseun and Sian have confirmed.

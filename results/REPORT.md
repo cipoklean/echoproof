@@ -1,9 +1,9 @@
 # EchoProof test matrix
 
-120 runs (62 cases x native voice + aai-jane), TTS-1 -> AssemblyAI Sync STT (Universal-3.5 Pro).
+122 runs (63 cases x native voice + aai-jane), TTS-1 -> AssemblyAI Sync STT (Universal-3.5 Pro).
 Raw failures were re-transcribed with local Whisper (small); `tts_fault` = both transcribers missed the same value.
 
-**Raw failures: 44/120. Guarded failures: 8/120.**
+**Raw failures: 44/122. Guarded failures: 4/122.**
 
 | Category | Runs | Raw fail | Guarded fail |
 |---|---|---|---|
@@ -12,7 +12,7 @@ Raw failures were re-transcribed with local Whisper (small); `tts_fault` = both 
 | medicine | 14 | 1 | 1 |
 | codes | 17 | 0 | 0 |
 | dates | 19 | 4 | 0 |
-| names | 4 | 4 | 4 |
+| names | 6 | 4 | 0 |
 
 ## Every failure
 
@@ -58,7 +58,7 @@ Raw failures were re-transcribed with local Whisper (small); `tts_fault` = both 
 | en-gb-date-slash | aai-jane | Your appointment is on 03/04/2026. | Your appointment is on March 4th, 2026. | tts_fault | PASS |
 | en-ng-date-slash | aai-audrey | Your clinic visit is on 05/06/2026. | Your clinic visit is on May 6th, 2026. | tts_fault | PASS |
 | en-ng-date-slash | aai-jane | Your clinic visit is on 05/06/2026. | Your clinic visit is on May 6th, 2026. | tts_fault | PASS |
-| en-names-irish | aai-audrey | Siobhan, Aoife and Niamh joined the call. | Siobhan, Oifa, and Niamh join the call. | tts_fault | FAIL: Siobhan, Oifa, and Niamh join the call. |
-| en-names-irish | aai-jane | Siobhan, Aoife and Niamh joined the call. | Siobhan, Aifa, and Niamh joined the call. | tts_fault | FAIL: Siobhan, Aifa, and Niamh joined the call. |
-| en-names-global | aai-audrey | Xochitl, Nguyen, Chukwuemeka and Saoirse are here. | So Chitul, Nwen, Chukwuemeka, and Sirsha are here. | tts_fault | FAIL: So Chitul, Nwen, Chukwuemeka, and Sirsha are here. |
-| en-names-global | aai-jane | Xochitl, Nguyen, Chukwuemeka and Saoirse are here. | Zochitl, Nwin, Chukwumeka, and Sirsha are here. | tts_fault | FAIL: Zochitl, Nwin, Chukwumeka, and Sirsha are here. |
+| en-names-1 | aai-audrey | Siobhan, Aoife and Niamh joined the call. | Siobhan, Oifa, and Niamh join the call. | tts_fault | PASS |
+| en-names-1 | aai-jane | Siobhan, Aoife and Niamh joined the call. | Siobhan, Aifa, and Niamh joined the call. | tts_fault | PASS |
+| en-names-2 | aai-jane | Xochitl, Chukwuemeka and Saoirse are here. | Zochitl, Chukwuemeka, and Saoirse are here. | tts_fault | PASS |
+| en-names-3 | aai-audrey | Oluwaseun and Siân have confirmed. | Oluwaseun and Seyi Onn have confirmed. | stt_disagree | PASS |

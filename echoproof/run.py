@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from .cases import CASES, LANGS
 from .client import speak, transcribe
 from .guard import guard
+from .names import heard_ok, respell
 from .numbers import canon
 
 
@@ -28,12 +29,13 @@ def one(c: dict, voice: str) -> dict:
     tts_lang, stt_lang, _ = LANGS[c["lang"]]
     g = guard(c["text"], c["locale"])
     row = {"id": c["id"], "lang": c["lang"], "cat": c["cat"], "voice": voice, "text": c["text"],
-           "displayed": g.displayed, "findings": [f.kind for f in g.findings], "expect": c["expect"], "note": c["note"]}
-    for mode, text in (("raw", c["text"]), ("guarded", g.cleaned)):
+           "displayed": g.displayed, "findings": [f.kind for f in g.findings], "expect": c["expect"], "note": c["note"], "names": c.get("names")}
+    cleaned = respell(g.cleaned) if c["lang"] == "en" else g.cleaned
+    for mode, text in (("raw", c["text"]), ("guarded", cleaned)):
         try:
             wav = speak(text, voice=voice, language=tts_lang)
             heard = transcribe(wav, stt_lang).get("text", "")
-            m = missing(c["expect"], heard)
+            m = [n for n in c["names"] if not heard_ok(n, heard)] if c.get("names") else missing(c["expect"], heard)
             row[mode] = {"sent": text, "audio": str(wav), "heard": heard, "missing": m, "pass": not m}
         except Exception as e:
             row[mode] = {"sent": text, "error": str(e)[:200], "pass": None}
@@ -56,7 +58,7 @@ def run(only=None, voices="both", second=True, out="results"):
             if r["raw"].get("pass") is False:
                 stt = LANGS[r["lang"]][1]
                 w = whisper(pathlib.Path(r["raw"]["audio"]), stt)
-                wm = missing(r["expect"], w)
+                wm = [n for n in r["names"] if not heard_ok(n, w)] if r.get("names") else missing(r["expect"], w)
                 r["raw"]["whisper"] = w
                 r["raw"]["whisper_missing"] = wm
                 # both transcribers miss the same value -> speech fault

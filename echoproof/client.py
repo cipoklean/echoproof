@@ -36,12 +36,16 @@ def speak(text: str, voice: str = "aai-jane", language: str = "english") -> path
     raise RuntimeError("TTS retries exhausted")
 
 
-def transcribe(wav: pathlib.Path, lang: str = "en") -> dict:
-    path = CACHE / "stt" / f"{wav.stem}-{lang}.json"
+def transcribe(wav: pathlib.Path, lang: str = "en", keyterms: list[str] | None = None) -> dict:
+    tag = "-kt" + _key(*keyterms)[:8] if keyterms else ""
+    path = CACHE / "stt" / f"{wav.stem}-{lang}{tag}.json"
     if path.exists():
         return json.loads(path.read_text())
     path.parent.mkdir(parents=True, exist_ok=True)
-    cfg = json.dumps({"language_codes": [lang], "timestamps": True})
+    conf = {"language_codes": [lang], "timestamps": True}
+    if keyterms:
+        conf["keyterms_prompt"] = keyterms
+    cfg = json.dumps(conf)
     for attempt in range(4):
         r = _s.post(STT_URL, headers={**_headers(), "X-AAI-Model": "universal-3-5-pro"},
                     files={"audio": (wav.name, wav.read_bytes(), "audio/wav"),

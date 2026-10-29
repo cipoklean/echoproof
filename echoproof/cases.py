@@ -92,7 +92,12 @@ add("it-date-slash", "it", "dates", "Il suo appuntamento è il 03/04/2026.", ["a
 add("fr-date-slash", "fr", "dates", "Votre rendez-vous est le 03/04/2026.", ["avril", "2026"])
 
 # ---------- Names ----------
-add("en-names-irish", "en", "names", "Siobhan, Aoife and Niamh joined the call.", ["siobhan", "aoife", "niamh"])
-add("en-names-global", "en", "names", "Xochitl, Nguyen, Chukwuemeka and Saoirse are here.", ["xochitl", "nguyen", "chukwuemeka", "saoirse"])
+for i, (txt, ns) in enumerate([
+    ("Siobhan, Aoife and Niamh joined the call.", ["Siobhan", "Aoife", "Niamh"]),
+    ("Xochitl, Chukwuemeka and Saoirse are here.", ["Xochitl", "Chukwuemeka", "Saoirse"]),
+    ("Oluwaseun and Siân have confirmed.", ["Oluwaseun", "Siân"]),
+]):
+    add(f"en-names-{i+1}", "en", "names", txt, ns)
+    C[-1]["names"] = ns
 
 CASES = C

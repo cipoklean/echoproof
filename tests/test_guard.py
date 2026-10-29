@@ -41,3 +41,9 @@ def test_dates_by_locale():
     assert any(f.kind == "ambiguous_date" for f in guard("03/04/2026", "en-ng").findings)
     assert guard("03/04/2026", "es").cleaned == "03/04/2026"  # TTS-1 reads es/de/fr day-first already
     assert not guard("25/12/2026", "en-gb").findings
+
+def test_names_lexicon():
+    from echoproof.names import heard_ok, respell
+    assert respell("Aoife and Niamh", {"Aoife": "Eefa", "Niamh": "Neev"}) == "Eefa and Neev"
+    assert heard_ok("Saoirse", "Sirsha joined")      # correct sound, phonetic spelling
+    assert not heard_ok("Aoife", "Haifa joined")      # wrong sound
