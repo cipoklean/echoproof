@@ -1,0 +1,22 @@
+from echoproof.guard import guard
+from echoproof.numbers import canon
+
+def test_bidi_display_and_clean():
+    g = guard("Pay to account \u202e9876\u202c now.")
+    assert g.displayed == "Pay to account 6789 now."
+    assert g.cleaned == "Pay to account 6789 now."
+    assert any(f.kind == "bidi_control" for f in g.findings)
+
+def test_homoglyph():
+    g = guard("p\u0430ypal.com")
+    assert g.cleaned == "paypal.com" and g.findings[0].kind == "homoglyph"
+
+def test_fullwidth_and_zwsp():
+    assert guard("\uff11\uff12\uff13\uff14").cleaned == "1234"
+    assert guard("1\u200b500").cleaned == "1500"
+
+def test_canon():
+    assert "1500" in canon("one thousand five hundred dollars").replace(" ", "")
+    assert "9876" in canon("nine eight seven six").replace(" ", "")
+    assert "0070090" in canon("zero zero seven zero zero nine zero").replace(" ", "")
+    assert "1500" in canon("$1,500.50").replace(" ", "")
