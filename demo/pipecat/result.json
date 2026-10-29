@@ -1,0 +1,43 @@
+[
+ {
+  "sayguard": false,
+  "text_sent_to_tts": "Confirming your payment of $‮00001‬ to Aoife Byrne on 03/04/2026. Shall I send it?",
+  "audio": "demo/pipecat/sayguard-off.wav",
+  "audio_seconds": 7.12,
+  "caller_heard": "Confirming your payment of $1 to Afa Burn on March 4th, 2026. Shall I send it?",
+  "changes": []
+ },
+ {
+  "sayguard": true,
+  "text_sent_to_tts": "Confirming your payment of $10000 to Eefa Byrne on 3 April 2026. Shall I send it?",
+  "audio": "demo/pipecat/sayguard-on.wav",
+  "audio_seconds": 7.6,
+  "caller_heard": "Confirming your payment of $10,000 to EFA Burn on 3 April 2026. Shall I send it?",
+  "changes": [
+   {
+    "kind": "bidi_control",
+    "at": 28,
+    "found": "U+202E",
+    "why": "can make the screen show a different order than the voice reads"
+   },
+   {
+    "kind": "bidi_control",
+    "at": 34,
+    "found": "U+202C",
+    "why": "can make the screen show a different order than the voice reads"
+   },
+   {
+    "kind": "ambiguous_date",
+    "at": 52,
+    "found": "03/04/2026",
+    "why": "reads as April 3 in en-gb, March 4 elsewhere"
+   },
+   {
+    "kind": "name_respelled",
+    "at": 37,
+    "found": "Aoife",
+    "why": "TTS-1 mispronounces it; say \"Eefa\""
+   }
+  ]
+ }
+]
