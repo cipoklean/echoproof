@@ -71,3 +71,15 @@ def test_email_spelled_and_checked_exactly():
     (e,) = [s for s in r.spans if s.kind == "email"]
     assert _check(e, "Email jo.smith_92@mail.co.uk today.")
     assert not _check(e, "Email joe.smith_92@mail.co.uk today.")
+
+
+def test_checker_regressions():
+    from sayguard.core import sanitize, _check
+    de = sanitize("Der Betrag ist 1.500,50 Euro.", "de").spans[0]
+    assert _check(de, "1.500,50 Euro") and not _check(de, "1.500.500 Euro") and not _check(de, "1.50050 Euro")
+    iban = sanitize("Send to IBAN GB29 \u202e4321 8765\u202c 0001.", "en-gb").spans[0]
+    assert _check(iban, "GB29567812340001") and not _check(iban, "GB29432187650001")
+    usd = sanitize("Your copay is $35.00 today.", "en-us").spans[0]
+    assert _check(usd, "$35,") and not _check(usd, "$35.50")
+    date = sanitize("Due 03/04/2026.", "en-us").spans[0]
+    assert _check(date, "Due March 4, 2026") and not _check(date, "Due March 14, 2026")

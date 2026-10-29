@@ -284,7 +284,8 @@ def _match(span: Span, heard: str, h: str) -> bool:
     if nums and len(nums) > 1 and "".join(n.replace(".", "") for n in nums) in runs:
         nums = []  # "1500 Euro und 50 Cent" written back as "1.500,50 Euro"
     joined = "".join(n.replace(".", "") for n in nums if "/" not in n)
-    if len(nums) > 1 and len(joined) >= 6 and joined in re.sub(r"\D", "", heard):
+    runs_alnum = [re.sub(r"\D", "", x) for x in re.findall(r"[0-9A-Za-z]*\d[0-9A-Za-z]*", heard)]
+    if len(nums) > 1 and len(joined) >= 6 and joined in runs_alnum:
         nums = [n for n in nums if "/" in n]  # grouped digits run together: "GB29 5678 1234" -> "GB2956781234"
     fracs = [x for x in nums if "/" in x]
     nums = [x for x in nums if "/" not in x]
