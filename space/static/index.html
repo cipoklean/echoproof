@@ -86,6 +86,7 @@ footer a{color:var(--brand)}
         <option value="de">German</option><option value="fr">French</option>
         <option value="pt">Portuguese</option><option value="it">Italian</option>
       </select>
+      <select id="voice" aria-label="Voice"><option value="">AssemblyAI voice</option></select>
       <button class="go" id="go">Speak it both ways</button>
     </div>
     <div class="hint" id="why"></div>
@@ -130,7 +131,9 @@ footer a{color:var(--brand)}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let EX=[];
-fetch("/api/examples").then(r=>r.json()).then(d=>{EX=d.examples;const groups={};
+fetch("/api/examples").then(r=>r.json()).then(d=>{
+  Object.entries(d.clones||{}).forEach(([id,name])=>{const o=document.createElement("option");o.value=id;o.textContent=name;$("voice").appendChild(o)});
+  EX=d.examples.concat((d.demo_texts||[]).map(t=>({...t,id:"demo-"+t.label,group:"Long message",why:"A real-world reminder with dates, codes, money, phone numbers, an email and a link."})));const groups={};
   EX.forEach((e,i)=>{(groups[e.group]=groups[e.group]||[]).push([e,i])});
   $("groups").innerHTML=Object.entries(groups).map(([g,list])=>`<div class="group"><div class="gname">${esc(g)}</div><div class="chips">${
     list.map(([e,i])=>`<button class="chip" data-i="${i}"><b dir="auto">${esc(e.text)}</b><span>${esc(e.why)}</span></button>`).join("")}</div></div>`).join("");
@@ -143,7 +146,7 @@ $("txt").oninput=()=>{$("why").textContent="";document.querySelectorAll(".chip")
 $("go").onclick=run;
 async function run(){const text=$("txt").value.trim();if(!text)return;$("err").textContent="";
   const b=$("go");b.disabled=true;b.innerHTML='<span class="spin"></span>Speaking and listening…';
-  try{const r=await fetch("/api/check",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text,locale:$("loc").value})});
+  try{const r=await fetch("/api/check",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text,locale:$("loc").value,voice:$("voice").value||null})});
     const raw=await r.text();let d;try{d=JSON.parse(raw)}catch(_){throw new Error("the server hit an error ("+r.status+"). Try again.")}
     if(!r.ok||d.error)throw new Error(d.error||r.statusText);show(d)}
   catch(e){$("err").textContent="Couldn't run that: "+e.message}

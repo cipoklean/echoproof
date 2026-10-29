@@ -15,6 +15,12 @@ EXAMPLES = json.loads((HERE / "examples.json").read_text())
 VOICES = {"en": "aai-audrey", "es": "aai-constanza", "de": "aai-jorg", "fr": "aai-donatien",
           "pt": "aai-benicio", "it": "aai-jane"}
 MAX_CHARS = 1000
+# Cloned voices on this account. A clone is someone's real voice, so on this public page it
+# only speaks the preset sentences; any text works with it from the CLI on your own key.
+CLONES = {"cipoklean-voice": "David (cloned voice)"}
+DEMO_TEXTS = json.loads((HERE / "demo_texts.json").read_text())
+PRESETS = {e["text"].strip() for e in EXAMPLES} | {e["text"].strip() for e in DEMO_TEXTS}
+LIBRARY = set(VOICES.values()) | {"aai-jane"}
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
@@ -27,7 +33,7 @@ def index():
 
 @app.get("/api/examples")
 def examples():
-    return {"examples": EXAMPLES, "voices": VOICES}
+    return {"examples": EXAMPLES, "voices": VOICES, "clones": CLONES, "demo_texts": DEMO_TEXTS}
 
 
 class Check(BaseModel):
@@ -83,6 +89,11 @@ def _check_text(c: Check):
         return JSONResponse({"error": f"Keep it under {MAX_CHARS} characters."}, status_code=400)
     lang = c.locale.lower()[:2]
     voice = c.voice or VOICES.get(lang, "aai-audrey")
+    if voice in CLONES:
+        if text not in PRESETS:
+            return JSONResponse({"error": "The cloned voice only speaks the preset sentences on this public page. Pick one, or switch to the AssemblyAI voice for your own text."}, status_code=403)
+    elif voice not in LIBRARY:
+        return JSONResponse({"error": "Unknown voice."}, status_code=400)
     r = sanitize(text, c.locale, voice)
     with ThreadPoolExecutor(2) as pool:
         raw_f = pool.submit(_speak_and_hear, r.original, voice, c.locale)
