@@ -60,5 +60,5 @@ def test_sayguard_sanitize_spans():
     r = sanitize("Transfer $\u202e00001\u202c to Aoife on 03/04/2026", "en-gb")
     assert r.spoken == "Transfer $10000 to Eefa on 3 April 2026"
     kinds = {s.kind: s.expect for s in r.spans}
-    assert kinds["number"] == ["10000"] and kinds["name"] == ["Aoife"] and "april" in kinds["date"]
+    assert kinds["number"] == ["10000", "cur:dollar"] and kinds["name"] == ["Aoife"] and "april" in kinds["date"]
     assert sanitize("Zahlen Sie 1.500,50 Euro", "de", "aai-jane").warnings

@@ -2,91 +2,171 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EchoProof · SayGuard bank line</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SayGuard · hear what the screen shows</title>
+<meta name="description" content="Test any sentence: AssemblyAI TTS-1 speaks it as written and after SayGuard, and AssemblyAI STT reports what a caller hears.">
 <style>
-:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--fg:#e6edf3;--mut:#8b949e;--ok:#3fb950;--bad:#f85149;--acc:#58a6ff;--warn:#d29922}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-header{padding:18px 20px 6px;max-width:1100px;margin:auto}h1{margin:0;font-size:22px}header p{margin:4px 0 0;color:var(--mut)}
-main{max-width:1100px;margin:auto;padding:12px 20px 40px;display:grid;grid-template-columns:340px 1fr;gap:18px}
-@media(max-width:820px){main{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs button{flex:1}
-button{background:#21262d;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer}
-button.on{background:var(--acc);color:#04111f;border-color:var(--acc);font-weight:600}
-.bank{border-radius:12px;background:#f6f8fa;color:#111;padding:14px}.bank h3{margin:0 0 8px;font-size:14px;color:#0969da}
-.row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #e1e4e8}.row:last-child{border:0}
-.row b{font-size:17px}.trick{font-size:13px;color:var(--mut);margin-top:10px}
-.switch{display:flex;align-items:center;justify-content:space-between;margin:14px 0 6px;padding:10px 12px;border-radius:10px;border:1px solid var(--line)}
-.switch.g{border-color:var(--ok)}.switch.r{border-color:var(--bad)}
-.talk{display:flex;gap:8px;margin-top:10px}.talk input{flex:1;background:#0d1117;border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:9px}
-#mic{width:100%;margin-top:10px;padding:14px;font-weight:600}#mic.rec{background:var(--bad);border-color:var(--bad)}
-.bubble{padding:10px 12px;border-radius:12px;margin:8px 0;max-width:92%}.me{background:#1f6feb33;margin-left:auto}.bot{background:#21262d}
-.lbl{font-size:12px;color:var(--mut);margin-bottom:2px}code{font-size:12px;word-break:break-all;color:#ffa657}
-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}td,th{padding:6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-.ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}.mut{color:var(--mut);font-size:13px}
-.verdict{font-size:20px;font-weight:700;margin:6px 0}.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);margin:2px 4px 2px 0;color:var(--mut)}
-audio{width:100%;margin-top:8px}
+:root{
+  --ink:#0f172a;--ink2:#334155;--mut:#64748b;--line:#e2e8f0;--bg:#f8fafc;--card:#fff;
+  --brand:#4f46e5;--brand2:#eef2ff;--ok:#059669;--okbg:#ecfdf5;--bad:#dc2626;--badbg:#fef2f2;--warn:#b45309;
+  --r:16px;--sh:0 1px 2px rgba(15,23,42,.04),0 8px 24px rgba(15,23,42,.06)
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;padding:28px 18px 64px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em}
+.logo{width:30px;height:30px;border-radius:9px;background:var(--brand);display:grid;place-items:center;color:#fff;font-size:16px}
+h1{font-size:clamp(28px,6vw,40px);line-height:1.1;letter-spacing:-.025em;margin:22px 0 8px}
+.lede{color:var(--ink2);font-size:17px;margin:0 0 22px;max-width:640px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:18px}
+.label{font-size:13px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}
+textarea{width:100%;min-height:96px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:14px;font:500 20px/1.4 inherit;color:var(--ink);background:#fff;outline:none}
+textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand2)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+select{appearance:none;border:1px solid var(--line);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.6' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;border-radius:10px;padding:10px 34px 10px 12px;font:inherit;font-size:15px;color:var(--ink)}
+.go{margin-left:auto;background:var(--brand);color:#fff;border:0;border-radius:12px;padding:12px 20px;font:600 16px inherit;cursor:pointer;box-shadow:0 6px 16px rgba(79,70,229,.25)}
+.go:disabled{opacity:.6;cursor:wait}
+@media(max-width:560px){.go{width:100%;margin-left:0}select{flex:1}}
+.hint{font-size:13px;color:var(--mut);margin-top:10px}
+.groups{margin-top:22px}
+.group{margin-bottom:14px}
+.gname{font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:6px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;max-width:300px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;font:inherit;color:var(--ink)}
+.chip:hover,.chip.on{border-color:var(--brand);background:var(--brand2)}
+.chip b{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip span{display:block;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#out{margin-top:22px;display:none}
+.verdict{border-radius:var(--r);padding:16px 18px;font-weight:600;font-size:17px;margin-bottom:14px}
+.verdict.ok{background:var(--okbg);color:var(--ok)}.verdict.bad{background:var(--badbg);color:var(--bad)}.verdict.neutral{background:var(--brand2);color:var(--brand)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.pair{grid-template-columns:1fr}}
+.side{border-top:4px solid var(--line)}
+.side.bad{border-top-color:var(--bad)}.side.ok{border-top-color:var(--ok)}
+.side h3{margin:0 0 4px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+.badge{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px}
+.badge.ok{background:var(--okbg);color:var(--ok)}.badge.bad{background:var(--badbg);color:var(--bad)}
+.heard{font-size:19px;font-weight:500;margin:10px 0 2px}
+.sent{font-size:13px;color:var(--mut);word-break:break-word}
+audio{width:100%;margin-top:12px;height:40px}
+.section{margin-top:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);text-align:left;font-weight:600;padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.tag{font-weight:700}.tag.ok{color:var(--ok)}.tag.bad{color:var(--bad)}
+.change{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.change:last-child{border:0}
+.ck{flex:0 0 auto;font-size:12px;font-weight:700;color:var(--brand);background:var(--brand2);padding:2px 8px;border-radius:6px;height:fit-content}
+code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;color:#9a3412;word-break:break-all}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{font-size:12px;color:var(--ink2);background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:3px 10px}
+.warn{color:var(--warn);font-size:14px;margin-top:8px}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:s .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes s{to{transform:rotate(360deg)}}
+.err{color:var(--bad);margin-top:10px;font-weight:500}
+footer{margin-top:36px;color:var(--mut);font-size:14px}
+footer a{color:var(--brand)}
 </style>
 </head>
 <body>
-<header>
-  <h1>EchoProof bank line</h1>
-  <p>Talk to a voice agent built on AssemblyAI. The screen and the voice should agree. Flip SayGuard off to hear what happens when they don't.</p>
-</header>
-<main>
-  <section class="card">
-    <div class="tabs" id="tabs"></div>
-    <div class="bank"><h3>Northwind Bank · <span id="who"></span></h3><div id="record"></div></div>
-    <div class="trick" id="trick"></div>
-    <div class="switch g" id="sw"><span><b>SayGuard</b> <span id="swl">on</span></span><button id="swb" class="on">On</button></div>
-    <button id="mic">Hold to talk</button>
-    <div class="talk"><input id="txt" placeholder="…or type what you'd say"><button id="send">Send</button></div>
-    <div class="mut" style="margin-top:10px">Pipeline: AssemblyAI Sync STT → LLM Gateway (<span id="llm">gemma</span>) → SayGuard → TTS-1 → Sync STT check of every amount, date, code and name.</div>
-  </section>
-  <section>
-    <div class="card" id="chat"><div class="mut">Pick a screen, then ask the agent about it. Try: <i id="hint"></i></div></div>
-    <div class="card" id="receipt" style="margin-top:14px;display:none"></div>
-  </section>
-</main>
+<div class="wrap">
+  <div class="brand"><div class="logo">◉</div>SayGuard <span style="font-weight:500;color:var(--mut)">by EchoProof</span></div>
+  <h1>Does the voice say what the screen shows?</h1>
+  <p class="lede">Pick a sentence or write your own. AssemblyAI TTS-1 speaks it twice, as written and after SayGuard, and AssemblyAI speech-to-text reports what a caller would hear.</p>
+
+  <div class="card">
+    <p class="label">What the screen shows</p>
+    <textarea id="txt" dir="auto" spellcheck="false" maxlength="400" placeholder="Type a sentence, or pick one below"></textarea>
+    <div class="controls">
+      <select id="loc" aria-label="Caller's locale">
+        <option value="en-us">English · US</option><option value="en-gb">English · UK</option>
+        <option value="en-ng">English · Nigeria</option><option value="en-in">English · India</option>
+        <option value="en-ie">English · Ireland</option><option value="es">Spanish</option>
+        <option value="de">German</option><option value="fr">French</option>
+        <option value="pt">Portuguese</option><option value="it">Italian</option>
+      </select>
+      <button class="go" id="go">Speak it both ways</button>
+    </div>
+    <div class="hint" id="why"></div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="groups" id="groups"></div>
+
+  <div id="out">
+    <div class="verdict" id="verdict"></div>
+    <div class="pair">
+      <div class="card side" id="rawC">
+        <h3>As written <span class="badge" id="rawB"></span></h3>
+        <div class="label" style="margin-top:8px">Caller heard</div>
+        <div class="heard" id="rawH"></div>
+        <audio id="rawA" controls></audio>
+        <div class="sent section">Characters sent: <code id="rawS"></code></div>
+      </div>
+      <div class="card side" id="safeC">
+        <h3>With SayGuard <span class="badge" id="safeB"></span></h3>
+        <div class="label" style="margin-top:8px">Caller heard</div>
+        <div class="heard" id="safeH"></div>
+        <audio id="safeA" controls></audio>
+        <div class="sent section">Text sent: <b id="safeS"></b></div>
+      </div>
+    </div>
+    <div class="card section" id="chk">
+      <p class="label">Every risky value, checked</p>
+      <table><thead><tr><th>Value</th><th>Must hear</th><th>As written</th><th>With SayGuard</th></tr></thead><tbody id="rows"></tbody></table>
+      <div class="pills" id="pills"></div>
+    </div>
+    <div class="card section" id="chg">
+      <p class="label">What SayGuard changed</p>
+      <div id="changes"></div>
+      <div id="warns"></div>
+    </div>
+  </div>
+
+  <footer>Real calls every time: AssemblyAI TTS-1 (<span id="tr">WebSocket</span>) for speech, AssemblyAI Sync STT for hearing. Nothing is pre-recorded. <a href="https://github.com/cipoklean/echoproof">Source on GitHub</a></footer>
+</div>
 <script>
-let S={}, cur="invoice", guard=true, hist=[];
 const $=id=>document.getElementById(id);
-fetch("/api/scenarios").then(r=>r.json()).then(d=>{S=d;Object.entries(d).forEach(([k,v])=>{const b=document.createElement("button");b.textContent=v.title;b.onclick=()=>pick(k);b.id="t-"+k;$("tabs").appendChild(b)});pick(cur)});
-function pick(k){cur=k;hist=[];const s=S[k];document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.id=="t-"+k));
- $("who").textContent=s.caller;$("record").innerHTML="";Object.entries(s.record).forEach(([a,b])=>{const r=document.createElement("div");r.className="row";r.innerHTML=`<span>${a}</span>`;const v=document.createElement("b");v.textContent=b;r.appendChild(v);$("record").appendChild(r)});
- $("trick").textContent=s.trick;$("hint").textContent='"'+s.ask+'"';$("txt").value=s.ask;$("chat").innerHTML='<div class="mut">Ask the agent about this screen. Try: <i>"'+s.ask+'"</i></div>';$("receipt").style.display="none"}
-$("swb").onclick=()=>{guard=!guard;$("swb").textContent=guard?"On":"Off";$("swb").classList.toggle("on",guard);$("swl").textContent=guard?"on":"off";$("sw").className="switch "+(guard?"g":"r")};
-function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
-function bubble(cls,lbl,html){const d=document.createElement("div");d.className="bubble "+cls;d.innerHTML=`<div class="lbl">${lbl}</div>${html}`;$("chat").appendChild(d);d.scrollIntoView({behavior:"smooth",block:"end"});return d}
-async function send(payload){const wait=bubble("bot","Agent","…thinking, speaking, checking");
- try{const r=await fetch("/api/turn",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({scenario:cur,sayguard:guard,history:hist,...payload})});const d=await r.json();wait.remove();
-  if(d.error){bubble("bot","Agent",esc(d.error));return}
-  if(payload.audio_b64)bubble("me","You (heard by AssemblyAI)",esc(d.user));
-  hist.push({role:"user",content:d.user},{role:"assistant",content:d.reply_raw});
-  const b=bubble("bot",`Agent · caller heard ${d.sayguard?"with":"<b>without</b>"} SayGuard`,`“${esc(d.heard)}”<audio controls autoplay src="data:audio/wav;base64,${d.audio}"></audio>`);
-  $("llm").textContent=d.llm;receipt(d)}catch(e){wait.remove();bubble("bot","Agent","Error: "+esc(String(e)))}}
-function receipt(d){const t=d.timings,R=$("receipt");R.style.display="block";
- const rows=d.spans.map(s=>`<tr><td>${esc(s.text)}</td><td>${esc(s.expect.join(", "))}</td><td>${s.at?(s.at[0]/1000).toFixed(2)+"–"+(s.at[1]/1000).toFixed(2)+"s":"—"}</td><td>${esc(s.heard||"(full transcript)")}</td><td class="${s.ok?"ok":"bad"}">${s.ok?"PASS":"FAIL"}</td></tr>`).join("");
- R.innerHTML=`<div class="lbl">Receipt</div><div class="verdict ${d.passed?"ok":"bad"}">${d.passed?"Caller heard what the screen shows":"Caller heard something different from the screen"}</div>
- <div class="lbl">LLM wrote (exact characters)</div><code>${esc(d.reply_escaped)}</code>
- <div class="lbl" style="margin-top:8px">Sent to TTS-1</div><div>${esc(d.spoken)}</div>
- ${d.changes.length?`<div class="lbl" style="margin-top:8px">SayGuard changes</div>`+d.changes.map(c=>`<div class="mut">• <b>${esc(c.kind)}</b> ${esc(c.found)}: ${esc(c.why)}</div>`).join(""):""}
- ${d.warnings.length?`<div class="lbl" style="margin-top:8px;color:var(--warn)">Warnings</div>`+d.warnings.map(w=>`<div class="mut">• ${esc(w)}</div>`).join(""):""}
- <table><tr><th>Span</th><th>Must hear</th><th>Spoken at</th><th>Heard there</th><th></th></tr>${rows}</table>
- <div style="margin-top:8px">${[["caller STT",t.caller_stt_ms],["LLM",t.llm_ms],["TTS-1 ("+d.transport+")",t.tts_ms],["check STT",t.check_stt_ms]].filter(x=>x[1]!=null).map(x=>`<span class="pill">${x[0]} ${Math.round(x[1])} ms</span>`).join("")}</div>`}
-$("send").onclick=()=>{const v=$("txt").value.trim();if(!v)return;bubble("me","You",esc(v));send({text:v})};
-$("txt").onkeydown=e=>{if(e.key=="Enter")$("send").click()};
-// mic: capture PCM, downsample to 16 kHz, wrap as WAV
-let ctx,proc,src,stream,chunks=[],rate;
-async function start(){stream=await navigator.mediaDevices.getUserMedia({audio:true});ctx=new AudioContext();rate=ctx.sampleRate;src=ctx.createMediaStreamSource(stream);proc=ctx.createScriptProcessor(4096,1,1);chunks=[];proc.onaudioprocess=e=>chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));src.connect(proc);proc.connect(ctx.destination);$("mic").classList.add("rec");$("mic").textContent="Listening… release to send"}
-function stop(){if(!ctx)return;proc.disconnect();src.disconnect();stream.getTracks().forEach(t=>t.stop());ctx.close();ctx=null;$("mic").classList.remove("rec");$("mic").textContent="Hold to talk";
- const n=chunks.reduce((a,c)=>a+c.length,0),all=new Float32Array(n);let o=0;chunks.forEach(c=>{all.set(c,o);o+=c.length});
- const ratio=rate/16000,len=Math.floor(n/ratio),pcm=new Int16Array(len);for(let i=0;i<len;i++){const v=Math.max(-1,Math.min(1,all[Math.floor(i*ratio)]));pcm[i]=v*32767}
- if(len<8000)return;const buf=new ArrayBuffer(44+len*2),dv=new DataView(buf);const w=(p,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(p+i,s.charCodeAt(i))};
- w(0,"RIFF");dv.setUint32(4,36+len*2,true);w(8,"WAVE");w(12,"fmt ");dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,16000,true);dv.setUint32(28,32000,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);w(36,"data");dv.setUint32(40,len*2,true);
- new Int16Array(buf,44).set(pcm);let bin="";const u=new Uint8Array(buf);for(let i=0;i<u.length;i+=32768)bin+=String.fromCharCode.apply(null,u.subarray(i,i+32768));send({audio_b64:btoa(bin)})}
-const m=$("mic");m.onmousedown=start;m.onmouseup=stop;m.onmouseleave=stop;m.ontouchstart=e=>{e.preventDefault();start()};m.ontouchend=e=>{e.preventDefault();stop()};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let EX=[];
+fetch("/api/examples").then(r=>r.json()).then(d=>{EX=d.examples;const groups={};
+  EX.forEach((e,i)=>{(groups[e.group]=groups[e.group]||[]).push([e,i])});
+  $("groups").innerHTML=Object.entries(groups).map(([g,list])=>`<div class="group"><div class="gname">${esc(g)}</div><div class="chips">${
+    list.map(([e,i])=>`<button class="chip" data-i="${i}"><b dir="auto">${esc(e.text)}</b><span>${esc(e.why)}</span></button>`).join("")}</div></div>`).join("");
+  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>pick(+c.dataset.i));
+  pick(0)});
+function pick(i){const e=EX[i];$("txt").value=e.text;$("loc").value=e.locale;$("why").textContent=e.why;
+  document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",+c.dataset.i===i));
+  window.scrollTo({top:0,behavior:"smooth"})}
+$("txt").oninput=()=>{$("why").textContent="";document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"))};
+$("go").onclick=run;
+async function run(){const text=$("txt").value.trim();if(!text)return;$("err").textContent="";
+  const b=$("go");b.disabled=true;b.innerHTML='<span class="spin"></span>Speaking and listening…';
+  try{const r=await fetch("/api/check",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text,locale:$("loc").value})});
+    const d=await r.json();if(!r.ok||d.error)throw new Error(d.error||r.statusText);show(d)}
+  catch(e){$("err").textContent="Couldn't run that: "+e.message}
+  finally{b.disabled=false;b.textContent="Speak it both ways"}}
+function show(d){$("out").style.display="block";const n=d.spans.length;
+  const v=$("verdict");
+  if(d.unchanged&&!n){v.className="verdict neutral";v.textContent="Nothing risky found. SayGuard left this sentence alone."}
+  else if(!d.raw_ok&&d.safe_ok){v.className="verdict ok";v.textContent="As written, the caller hears something different from the screen. SayGuard fixed it."}
+  else if(d.raw_ok&&d.safe_ok){v.className="verdict ok";v.textContent="Both versions came through right this time. TTS output varies, which is why SayGuard checks every reply."}
+  else{v.className="verdict bad";v.textContent="Still wrong with SayGuard. See which value failed below."}
+  side("raw",d.raw,d.raw_ok,n);side("safe",d.safe,d.safe_ok,n);
+  $("rawS").textContent=d.escaped;$("safeS").textContent=d.spoken;$("tr").textContent=d.safe.transport==="websocket"?"WebSocket":"HTTP";
+  $("chk").style.display=n?"block":"none";
+  $("rows").innerHTML=d.spans.map(s=>`<tr><td dir="auto"><b>${esc(s.text)}</b></td><td>${esc(s.expect.join(", "))}</td>
+    <td class="tag ${s.ok_raw?"ok":"bad"}">${s.ok_raw?"✓ heard":"✗ wrong"}</td>
+    <td><span class="tag ${s.ok_safe?"ok":"bad"}">${s.ok_safe?"✓":"✗"}</span> ${s.heard_safe?`“${esc(s.heard_safe)}”`:""}${s.at?`<div class="sent">at ${(s.at[0]/1000).toFixed(2)}–${(s.at[1]/1000).toFixed(2)}s</div>`:""}</td></tr>`).join("");
+  $("pills").innerHTML=[["Voice",d.voice],["TTS-1",d.safe.tts_ms+" ms"],["STT",d.safe.stt_ms+" ms"]].map(p=>`<span class="pill">${p[0]}: ${esc(p[1])}</span>`).join("");
+  $("chg").style.display=(d.changes.length||d.warnings.length)?"block":"none";
+  $("changes").innerHTML=d.changes.map(c=>`<div class="change"><span class="ck">${esc(c.kind.replace(/_/g," "))}</span><div><b dir="auto">${esc(c.found)}</b> · ${esc(c.why)}</div></div>`).join("");
+  $("warns").innerHTML=d.warnings.map(w=>`<div class="warn">⚠ ${esc(w)}</div>`).join("");
+  $("out").scrollIntoView({behavior:"smooth"})}
+function side(k,x,ok,n){$(k+"H").textContent="“"+x.heard+"”";$(k+"A").src="data:audio/wav;base64,"+x.audio;
+  const b=$(k+"B");b.className="badge "+(n?(ok?"ok":"bad"):"");b.textContent=n?(ok?"Matches screen":"Doesn't match"):"";
+  $(k+"C").className="card side "+(n?(ok?"ok":"bad"):"")}
 </script>
 </body>
 </html>

@@ -87,8 +87,14 @@ def _spans(spoken: str, names: dict[str, str]) -> list[Span]:
             spans.append(Span(text, (a, b), [toks[a].strip(".,;:!?").split(".")[0].lower()], "domain"))
         else:
             fr = re.findall(r"\d+/\d+", text)
-            c = canon(re.sub(r"\d+/\d+", " ", text))
+            rest = re.sub(r"\d+/\d+", " ", text)
+            # canon each token on its own so "10, 2025" stays two numbers, but keep
+            # number groups that canon must join ("1,500.50", "1.500,50") within one token
+            c = " ".join(canon(tok) for tok in rest.split())
             exp = fr + re.findall(r"\d+(?:\.\d+)?", c) + re.findall(MONTHS.lower(), c)
+            cur = [w for sym, w in (("$", "dollar"), ("€", "euro"), ("£", "pound"), ("₹", "rupee"))
+                   if sym in text or w in text.lower()]
+            exp += [f"cur:{w}" for w in cur]
             spans.append(Span(text, (a, b), exp, "date" if any(m in c for m in MONTHS.lower().split("|")) else kind))
         i = j
     return spans
@@ -198,6 +204,12 @@ def _stt(path: pathlib.Path, lang: str) -> tuple[dict, float]:
 def _check(span: Span, heard: str) -> bool:
     if span.kind == "name":
         return heard_ok(span.name, heard)
+    for e in [x for x in span.expect if x.startswith("cur:")]:
+        w = e[4:]; sym = {"dollar": "$", "euro": "€", "pound": "£", "rupee": "₹"}[w]
+        if sym not in heard and w not in heard.lower():
+            return False
+    span = Span(span.text, span.tokens, [x for x in span.expect if not x.startswith("cur:")], span.kind, span.name)
+    heard = heard.replace("^", " to the power of ")
     h = canon(heard)
     hd = h.replace(" ", "")
     nums = [e for e in span.expect if not e.isalpha()]
@@ -206,6 +218,9 @@ def _check(span: Span, heard: str) -> bool:
     runs = [re.sub(r"\D", "", x) for x in re.findall(r"\d[\d.,]*\d|\d", heard) if money_re.match(x)]
     if nums and len(nums) > 1 and "".join(n.replace(".", "") for n in nums) in runs:
         nums = []  # "1500 Euro und 50 Cent" written back as "1.500,50 Euro"
+    joined = "".join(n.replace(".", "") for n in nums if "/" not in n)
+    if len(nums) > 1 and len(joined) >= 6 and joined in re.sub(r"\D", "", heard):
+        nums = [n for n in nums if "/" in n]  # grouped digits run together: "GB29 5678 1234" -> "GB2956781234"
     fracs = [x for x in nums if "/" in x]
     nums = [x for x in nums if "/" not in x]
     for f in fracs:

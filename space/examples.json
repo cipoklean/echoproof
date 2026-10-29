@@ -1,0 +1,137 @@
+[
+ {
+  "id": "en-rlo-amount-big",
+  "group": "Hidden characters",
+  "locale": "en-us",
+  "lang": "en",
+  "text": "Approve the payment of $‮00001‬.",
+  "why": "A hidden right-to-left mark: the screen shows $10000, the characters run 0,0,0,0,1.",
+  "benchmark_raw_heard": "Approved the payment of $1."
+ },
+ {
+  "id": "en-rlo-account",
+  "group": "Hidden characters",
+  "locale": "en-us",
+  "lang": "en",
+  "text": "Pay to account ‮9876‬ now.",
+  "why": "Account number reversed by a hidden mark.",
+  "benchmark_raw_heard": "Pay to account 9876 now."
+ },
+ {
+  "id": "en-rlo-iban",
+  "group": "Hidden characters",
+  "locale": "en-gb",
+  "lang": "en",
+  "text": "Send to IBAN GB29 ‮4321 8765‬ 0001.",
+  "why": "Part of an IBAN flipped inside a hidden mark.",
+  "benchmark_raw_heard": "Send to IBAN GB29432187650001."
+ },
+ {
+  "id": "en-rlo-date",
+  "group": "Hidden characters",
+  "locale": "en-us",
+  "lang": "en",
+  "text": "Your deadline is ‮5202 ,01 yaM‬.",
+  "why": "A whole date written backwards, displayed forwards.",
+  "benchmark_raw_heard": "Your deadline is 5/20/201, yam."
+ },
+ {
+  "id": "en-homoglyph-paypal",
+  "group": "Look-alike letters",
+  "locale": "en-us",
+  "lang": "en",
+  "text": "Log in to pаypal.com to confirm.",
+  "why": "The 'a' in paypal is Cyrillic.",
+  "benchmark_raw_heard": "Log in to phppl.com to confirm."
+ },
+ {
+  "id": "en-arabic-digits",
+  "group": "Look-alike letters",
+  "locale": "en-us",
+  "lang": "en",
+  "text": "Your code is ٣٧٢٩.",
+  "why": "A code typed with Arabic-Indic digits.",
+  "benchmark_raw_heard": "Your code is BABBW."
+ },
+ {
+  "id": "en-fraction",
+  "group": "Numbers & money",
+  "locale": "en-us",
+  "lang": "en",
+  "text": "Take ½ tablet.",
+  "why": "A half written as one character.",
+  "benchmark_raw_heard": "Take Mark tablet."
+ },
+ {
+  "id": "en-superscript",
+  "group": "Numbers & money",
+  "locale": "en-us",
+  "lang": "en",
+  "text": "Dose: 10² units.",
+  "why": "A superscript power in a dose.",
+  "benchmark_raw_heard": "Dose: 10 W units."
+ },
+ {
+  "id": "en-inr-lakh",
+  "group": "Numbers & money",
+  "locale": "en-in",
+  "lang": "en",
+  "text": "The price is ₹1,50,000.",
+  "why": "Indian lakh grouping: 1,50,000 is 150,000.",
+  "benchmark_raw_heard": "The price is $105,000."
+ },
+ {
+  "id": "it-money",
+  "group": "Numbers & money",
+  "locale": "it",
+  "lang": "it",
+  "text": "Il totale è 1.500,50 euro.",
+  "why": "European decimal comma in an amount.",
+  "benchmark_raw_heard": "Il totale è 1.50050 euro."
+ },
+ {
+  "id": "en-gb-date-slash",
+  "group": "Dates",
+  "locale": "en-gb",
+  "lang": "en",
+  "text": "Your appointment is on 03/04/2026.",
+  "why": "Day-first date for a UK caller.",
+  "benchmark_raw_heard": "Your appointment is on March 4th, 2026."
+ },
+ {
+  "id": "en-ng-date-slash",
+  "group": "Dates",
+  "locale": "en-ng",
+  "lang": "en",
+  "text": "Your clinic visit is on 05/06/2026.",
+  "why": "Day-first date for a Nigerian caller.",
+  "benchmark_raw_heard": "Your clinic visit is on May 6th, 2026."
+ },
+ {
+  "id": "en-names-3",
+  "group": "Names",
+  "locale": "en-gb",
+  "lang": "en",
+  "text": "Oluwaseun and Siân have confirmed.",
+  "why": "Yoruba and Welsh names.",
+  "benchmark_raw_heard": "Oluwaseun and Seyi Onn have confirmed."
+ },
+ {
+  "id": "de-rlo-amount",
+  "group": "Other languages",
+  "locale": "de",
+  "lang": "de",
+  "text": "Überweisen Sie ‮005‬ Euro.",
+  "why": "German amount reversed by a hidden mark.",
+  "benchmark_raw_heard": "Überweisen Sie 005 Euro."
+ },
+ {
+  "id": "es-rlo-account",
+  "group": "Other languages",
+  "locale": "es",
+  "lang": "es",
+  "text": "Pague a la cuenta ‮9876‬ hoy.",
+  "why": "Spanish account number reversed.",
+  "benchmark_raw_heard": "Pague a la cuenta 9876 hoy."
+ }
+]
