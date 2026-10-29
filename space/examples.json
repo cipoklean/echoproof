@@ -116,6 +116,14 @@
   "why": "Yoruba name TTS-1 clips to 'Oluwasun'."
  },
  {
+  "id": "en-ng-email",
+  "group": "Emails",
+  "locale": "en-ng",
+  "lang": "en",
+  "text": "Send the receipt to k.nwosu-eze@unn.edu.ng today.",
+  "why": "TTS-1 turns 'eze' into 'easy'."
+ },
+ {
   "id": "de-rlo-amount",
   "group": "Other languages",
   "locale": "de",

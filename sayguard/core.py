@@ -52,11 +52,57 @@ def _lang(locale: str) -> tuple[str, str]:
     return LANG.get(locale.lower()[:2], LANG["en"])
 
 
-def _spans(spoken: str, names: dict[str, str]) -> list[Span]:
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
+_DOMAIN_WORDS = {"com", "org", "net", "co", "uk", "ng", "edu", "gov", "io", "mail", "info", "ac", "us",
+                 "app", "dev", "yahoo", "gmail", "outlook", "hotmail", "icloud", "proton"}
+_SEP_WORDS = {".": "dot", "_": "underscore", "-": "dash", "+": "plus"}
+
+
+def say_email(addr: str) -> str:
+    """jo.smith_92@mail.co.uk -> "J-O dot S-M-I-T-H underscore 92 at mail dot co dot uk".
+    Spelled letters stop TTS-1 turning "jo" into "joe" or "eze" into "easy"."""
+    local, domain = addr.split("@", 1)
+    out = []
+    for side, part_s in (("local", local), ("domain", domain)):
+        if side == "domain":
+            out.append("at")
+        for part in re.split(r"([._+-])", part_s):
+            if not part:
+                continue
+            if part in _SEP_WORDS:
+                out.append(_SEP_WORDS[part])
+            elif part.isdigit():
+                out.append(" ".join(part) if len(part) > 2 else part)
+            elif side == "domain" and part.lower() in _DOMAIN_WORDS:
+                out.append(part.lower())
+            else:
+                out.append("-".join(part.upper()))
+    return " ".join(out)
+
+
+def heard_email(heard: str) -> str:
+    """Fold a transcript's spoken or spelled email back into one compact lowercase string."""
+    h = " " + heard.lower() + " "
+    for w, c in ((" at ", "@"), (" dot ", "."), (" underscore ", "_"), (" dash ", "-"), (" hyphen ", "-"), (" plus ", "+")):
+        h = h.replace(w, c)
+    h = re.sub(r"\b([a-z0-9])[-,\s]+(?=[a-z0-9]\b)", r"\1", h)  # J-O / J, O / J O -> jo
+    return re.sub(r"\s*([@._+-])\s*", r"\1", h)
+
+
+def _spans(spoken: str, names: dict[str, str], emails: list[tuple[str, str]] = ()) -> list[Span]:
     toks = spoken.split()
     respelled = {v.lower(): k for k, v in names.items()}
-    risky = []
+    risky, taken, email_spans = [], set(), []
+    for addr, said in emails:
+        st = said.split()
+        for a in range(len(toks) - len(st) + 1):
+            if [t.rstrip(".,;:!?") for t in toks[a:a + len(st)]] == st and a not in taken:
+                taken.update(range(a, a + len(st)))
+                email_spans.append(Span(addr, (a, a + len(st)), ["email:" + addr.lower()], "email", name=addr))
+                break
     for i, t in enumerate(toks):
+        if i in taken:
+            continue
         bare = t.strip(".,;:!?()\"'").lower()
         if re.search(r"\d", t) or re.search(r"[$€£¥₹]", t):
             risky.append((i, "number"))
@@ -97,7 +143,7 @@ def _spans(spoken: str, names: dict[str, str]) -> list[Span]:
             exp += [f"cur:{w}" for w in cur]
             spans.append(Span(text, (a, b), exp, "date" if any(m in c for m in MONTHS.lower().split("|")) else kind))
         i = j
-    return spans
+    return sorted(spans + email_spans, key=lambda x: x.tokens[0])
 
 
 def sanitize(text: str, locale: str = "en-us", voice: str | None = None) -> Receipt:
@@ -115,12 +161,20 @@ def sanitize(text: str, locale: str = "en-us", voice: str | None = None) -> Rece
         for k, v in names.items():
             changes.append({"kind": "name_respelled", "at": spoken.find(k), "found": k, "why": f'TTS-1 mispronounces it; say "{v}"'})
         spoken = _r(spoken, names)
+    emails = []
+    if locale.lower().startswith("en"):
+        for addr in dict.fromkeys(EMAIL_RE.findall(spoken)):
+            said = say_email(addr)
+            emails.append((addr, said))
+            changes.append({"kind": "email_spelled", "at": spoken.find(addr), "found": addr,
+                            "why": f'TTS-1 guesses at addresses; spell it: "{said}"'})
+            spoken = spoken.replace(addr, said)
     warnings = []
     if voice:
         w = check_voice(voice, _lang(locale)[0])
         if w:
             warnings.append(w.detail)
-    return Receipt(text, g.displayed, spoken, locale, changes, _spans(spoken, names), warnings)
+    return Receipt(text, g.displayed, spoken, locale, changes, _spans(spoken, names, emails), warnings)
 
 
 def _tts_events(text: str, voice: str, language: str, sr: int = 24000) -> tuple[bytes, list[dict], float]:
@@ -204,6 +258,8 @@ def _stt(path: pathlib.Path, lang: str) -> tuple[dict, float]:
 def _check(span: Span, heard: str) -> bool:
     if span.kind == "name":
         return heard_ok(span.name, heard)
+    if span.kind == "email":
+        return span.name.lower() in heard_email(heard)
     for e in [x for x in span.expect if x.startswith("cur:")]:
         w = e[4:]; sym = {"dollar": "$", "euro": "€", "pound": "£", "rupee": "₹"}[w]
         if sym not in heard and w not in heard.lower():

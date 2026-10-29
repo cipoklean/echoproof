@@ -62,3 +62,12 @@ def test_sayguard_sanitize_spans():
     kinds = {s.kind: s.expect for s in r.spans}
     assert kinds["number"] == ["10000", "cur:dollar"] and kinds["name"] == ["Aoife"] and "april" in kinds["date"]
     assert sanitize("Zahlen Sie 1.500,50 Euro", "de", "aai-jane").warnings
+
+
+def test_email_spelled_and_checked_exactly():
+    from sayguard.core import sanitize, _check
+    r = sanitize("Email jo.smith_92@mail.co.uk today.", "en-gb")
+    assert "J-O dot S-M-I-T-H underscore 92 at mail dot co dot uk" in r.spoken
+    (e,) = [s for s in r.spans if s.kind == "email"]
+    assert _check(e, "Email jo.smith_92@mail.co.uk today.")
+    assert not _check(e, "Email joe.smith_92@mail.co.uk today.")
