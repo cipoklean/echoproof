@@ -19,7 +19,7 @@ EchoProof's guard speaks what the user actually sees: it resolves bidi overrides
 
 - Trojan Speech: 32 of 43 raw runs failed; 0 failed after the guard.
 - Worst case: the screen shows **$10000**, TTS-1 says **"$1"** (`demo/screen-10000-voice-1.wav`).
-- Every raw failure was re-checked by a second transcriber (local Whisper); 39 of 40 were confirmed as speech faults.
+- Every raw failure was re-checked by a second transcriber (local Whisper); all 40 were confirmed as speech faults.
 
 Full table: [`results/REPORT.md`](results/REPORT.md).
 
