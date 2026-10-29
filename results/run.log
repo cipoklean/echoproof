@@ -95,14 +95,23 @@ fr-phone               aai-jane       raw=PASS guarded=PASS   | Appelez le 01 42
 pt-phone               aai-benicio    raw=PASS guarded=PASS   | Ligue para mais 351-912-345-678.
 pt-phone               aai-jane       raw=PASS guarded=PASS   | Ligue para mais 351-912-345-678.
 it-phone               aai-jane       raw=PASS guarded=PASS   | Chiami il 06 123 45678.
-en-date-slash          aai-audrey     raw=PASS guarded=PASS   | Your appointment is on March 4th, 2026.
-en-date-slash          aai-jane       raw=PASS guarded=PASS   | Your appointment is on March 4th, 2026.
+en-us-date-slash       aai-audrey     raw=PASS guarded=PASS   | Your appointment is on March 4th, 2026.
+en-us-date-slash       aai-jane       raw=PASS guarded=PASS   | Your appointment is on March 4th, 2026.
+en-gb-date-slash       aai-audrey     raw=FAIL guarded=PASS tts_fault  | Your appointment is on March 4th, 2026.
+en-gb-date-slash       aai-jane       raw=FAIL guarded=PASS tts_fault  | Your appointment is on March 4th, 2026.
+en-ng-date-slash       aai-audrey     raw=FAIL guarded=PASS tts_fault  | Your clinic visit is on May 6th, 2026.
+en-ng-date-slash       aai-jane       raw=FAIL guarded=PASS tts_fault  | Your clinic visit is on May 6th, 2026.
+en-in-date-dot         aai-audrey     raw=PASS guarded=PASS   | Your EMI is due on December 11th, 2026.
+en-in-date-dot         aai-jane       raw=PASS guarded=PASS   | Your EMI is due on December 11th, 2026.
 en-date-iso            aai-audrey     raw=PASS guarded=PASS   | Your appointment is on April 3rd, 2026.
 en-date-iso            aai-jane       raw=PASS guarded=PASS   | Your appointment is on April 3rd, 2026.
 es-date-slash          aai-constanza  raw=PASS guarded=PASS   | Su cita es el 3 de abril de 2026.
 es-date-slash          aai-jane       raw=PASS guarded=PASS   | Su cita es el 3 de abril de 2026.
 de-date                aai-jorg       raw=PASS guarded=PASS   | Ihr Termin ist am 3. April 2026.
 de-date                aai-jane       raw=PASS guarded=PASS   | Ihr Termin ist am 3. April 2026.
+pt-date-slash          aai-benicio    raw=PASS guarded=PASS   | Sua consulta é em 3 de abril de 2026.
+pt-date-slash          aai-jane       raw=PASS guarded=PASS   | Sua consulta é em 3 de abril de 2026.
+it-date-slash          aai-jane       raw=PASS guarded=PASS   | Il suo appuntamento è il 3 aprile 2026.
 fr-date-slash          aai-donatien   raw=PASS guarded=PASS   | Votre rendez-vous est le 3 avril 2026.
 fr-date-slash          aai-jane       raw=PASS guarded=PASS   | Votre rendez-vous est le 3 avril 2026.
 en-names-irish         aai-audrey     raw=FAIL guarded=FAIL tts_fault  | Siobhan, Oifa, and Niamh join the call.

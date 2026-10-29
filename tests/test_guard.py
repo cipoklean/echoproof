@@ -34,3 +34,10 @@ def test_euro_grouping():
     assert missing(["1500.50"], "1.500,50 Euro") == []
     assert missing(["1500.50"], "1.500.500") == ["1500.50"]
     assert missing(["1500"], "15000") == ["1500"]
+
+def test_dates_by_locale():
+    assert "3 April 2026" in guard("on 03/04/2026", "en-gb").cleaned
+    assert "March 4, 2026" in guard("on 03/04/2026", "en-us").cleaned
+    assert any(f.kind == "ambiguous_date" for f in guard("03/04/2026", "en-ng").findings)
+    assert guard("03/04/2026", "es").cleaned == "03/04/2026"  # TTS-1 reads es/de/fr day-first already
+    assert not guard("25/12/2026", "en-gb").findings

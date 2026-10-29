@@ -17,8 +17,9 @@ LANGS = {  # language -> (TTS language, STT code, native voice)
 }
 
 C = []
-def add(id, lang, cat, text, expect, note=""):
-    C.append({"id": id, "lang": lang, "cat": cat, "text": text, "expect": expect, "note": note})
+def add(id, lang, cat, text, expect, note="", locale=None):
+    C.append({"id": id, "lang": lang, "cat": cat, "text": text, "expect": expect, "note": note,
+              "locale": locale or {"en": "en-us"}.get(lang, lang)})
 
 # ---------- Trojan Speech (display != speech) ----------
 add("en-rlo-account", "en", "trojan", f"Pay to account {RLO}9876{PDF} now.", ["6789"])
@@ -79,11 +80,16 @@ add("pt-phone", "pt", "codes", "Ligue para +351 912 345 678.", ["351912345678"])
 add("it-phone", "it", "codes", "Chiami il 06 1234 5678.", ["0612345678"])
 
 # ---------- Dates ----------
-add("en-date-slash", "en", "dates", "Your appointment is on 03/04/2026.", ["2026"], "US vs UK reading")
+add("en-us-date-slash", "en", "dates", "Your appointment is on 03/04/2026.", ["march", "4", "2026"], "US caller", "en-us")
+add("en-gb-date-slash", "en", "dates", "Your appointment is on 03/04/2026.", ["april", "3", "2026"], "UK caller", "en-gb")
+add("en-ng-date-slash", "en", "dates", "Your clinic visit is on 05/06/2026.", ["june", "5", "2026"], "Nigerian caller", "en-ng")
+add("en-in-date-dot", "en", "dates", "Your EMI is due on 11.12.2026.", ["december", "11", "2026"], "Indian caller", "en-in")
 add("en-date-iso", "en", "dates", "Your appointment is on 2026-04-03.", ["april", "2026"])
-add("es-date-slash", "es", "dates", "Su cita es el 03/04/2026.", ["2026"], "should be 3 de abril")
-add("de-date", "de", "dates", "Ihr Termin ist am 03.04.2026.", ["2026"], "should be 3. April")
-add("fr-date-slash", "fr", "dates", "Votre rendez-vous est le 03/04/2026.", ["2026"], "should be 3 avril")
+add("es-date-slash", "es", "dates", "Su cita es el 03/04/2026.", ["abril", "2026"])
+add("de-date", "de", "dates", "Ihr Termin ist am 03.04.2026.", ["april", "2026"])
+add("pt-date-slash", "pt", "dates", "Sua consulta é em 03/04/2026.", ["abril", "2026"])
+add("it-date-slash", "it", "dates", "Il suo appuntamento è il 03/04/2026.", ["aprile", "2026"])
+add("fr-date-slash", "fr", "dates", "Votre rendez-vous est le 03/04/2026.", ["avril", "2026"])
 
 # ---------- Names ----------
 add("en-names-irish", "en", "names", "Siobhan, Aoife and Niamh joined the call.", ["siobhan", "aoife", "niamh"])

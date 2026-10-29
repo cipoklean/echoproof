@@ -15,11 +15,12 @@ EchoProof's guard speaks what the user actually sees: it resolves bidi overrides
 
 ## Results (Oct 29, 2026)
 
-111 runs: 57 cases in all six TTS-1 languages, each spoken by a native catalog voice and the default `aai-jane`.
+120 runs: 62 cases in all six TTS-1 languages, each spoken by a native catalog voice and the default `aai-jane`.
 
 - Trojan Speech: 32 of 43 raw runs failed; 0 failed after the guard.
 - Worst case: the screen shows **$10000**, TTS-1 says **"$1"** (`demo/screen-10000-voice-1.wav`).
-- Every raw failure was re-checked by a second transcriber (local Whisper); all 40 were confirmed as speech faults.
+- Dates: TTS-1 reads English 03/04/2026 as March 4 for everyone. UK and Nigerian callers lose; the guard spells the date out by locale (4 raw failures, 0 guarded). Spanish, German, French, Portuguese and Italian already read day-first.
+- Every raw failure was re-checked by a second transcriber (local Whisper); each was confirmed as speech faults.
 
 Full table: [`results/REPORT.md`](results/REPORT.md).
 

@@ -26,7 +26,7 @@ def missing(expect: list[str], heard: str) -> list[str]:
 
 def one(c: dict, voice: str) -> dict:
     tts_lang, stt_lang, _ = LANGS[c["lang"]]
-    g = guard(c["text"])
+    g = guard(c["text"], c["locale"])
     row = {"id": c["id"], "lang": c["lang"], "cat": c["cat"], "voice": voice, "text": c["text"],
            "displayed": g.displayed, "findings": [f.kind for f in g.findings], "expect": c["expect"], "note": c["note"]}
     for mode, text in (("raw", c["text"]), ("guarded", g.cleaned)):

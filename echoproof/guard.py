@@ -66,7 +66,35 @@ def visual_order(text: str) -> str:
     return "".join(out)
 
 
-def guard(text: str) -> GuardResult:
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August",
+          "September", "October", "November", "December"]
+# English locales that write day first. TTS-1 reads English slash dates month-first
+# (US); other TTS-1 languages already read them day-first.
+DAY_FIRST_EN = {"en-gb", "en-ng", "en-ie", "en-au", "en-nz", "en-in", "en-za", "en-ke", "en-gh"}
+DATE = re.compile(r"\b(\d{1,2})[/.](\d{1,2})[/.](\d{4})\b")
+
+
+def _dates(text: str, locale: str, findings: list) -> str:
+    """Spell out slash dates in English so the voice can't pick the wrong order."""
+    loc = locale.lower()
+    if not loc.startswith("en"):
+        return text
+    day_first = loc in DAY_FIRST_EN
+
+    def fix(m):
+        a, b, y = int(m.group(1)), int(m.group(2)), m.group(3)
+        d, mo = (a, b) if day_first else (b, a)
+        if not (1 <= mo <= 12 and 1 <= d <= 31):
+            return m.group()
+        if a <= 12 and b <= 12 and a != b:
+            findings.append(Finding("ambiguous_date", m.group(), m.start(),
+                                    f"reads as {MONTHS[mo-1]} {d} in {locale}, {MONTHS[a-1 if day_first else b-1]} {b if day_first else a} elsewhere"))
+        return f"{d} {MONTHS[mo-1]} {y}" if day_first else f"{MONTHS[mo-1]} {d}, {y}"
+
+    return DATE.sub(fix, text)
+
+
+def guard(text: str, locale: str = "en-us") -> GuardResult:
     findings: list[Finding] = []
     for i, ch in enumerate(text):
         if ch in BIDI:
@@ -93,4 +121,5 @@ def guard(text: str) -> GuardResult:
     cleaned = unicodedata.normalize("NFKC", cleaned).replace("⁄", "/")
     cleaned = "".join(str(unicodedata.digit(c)) if c.isdigit() and not c.isascii() else c for c in cleaned)
     cleaned = "".join(c for i, c in enumerate(cleaned) if not (unicodedata.category(c) == "Mn" and i and cleaned[i-1].isdigit()))
+    cleaned = _dates(cleaned, locale, findings)
     return GuardResult(original=text, cleaned=cleaned, displayed=displayed, findings=findings)

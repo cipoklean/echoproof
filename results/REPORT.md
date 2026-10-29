@@ -1,9 +1,9 @@
 # EchoProof test matrix
 
-111 runs (57 cases x native voice + aai-jane), TTS-1 -> AssemblyAI Sync STT (Universal-3.5 Pro).
+120 runs (62 cases x native voice + aai-jane), TTS-1 -> AssemblyAI Sync STT (Universal-3.5 Pro).
 Raw failures were re-transcribed with local Whisper (small); `tts_fault` = both transcribers missed the same value.
 
-**Raw failures: 40/111. Guarded failures: 8/111.**
+**Raw failures: 44/120. Guarded failures: 8/120.**
 
 | Category | Runs | Raw fail | Guarded fail |
 |---|---|---|---|
@@ -11,7 +11,7 @@ Raw failures were re-transcribed with local Whisper (small); `tts_fault` = both 
 | money | 23 | 3 | 3 |
 | medicine | 14 | 1 | 1 |
 | codes | 17 | 0 | 0 |
-| dates | 10 | 0 | 0 |
+| dates | 19 | 4 | 0 |
 | names | 4 | 4 | 4 |
 
 ## Every failure
@@ -54,6 +54,10 @@ Raw failures were re-transcribed with local Whisper (small); `tts_fault` = both 
 | de-money | aai-jane | Der Betrag ist 1.500,50 Euro. | Der Betrag ist 1.500.500. | tts_fault | FAIL: Der Betrag ist 1.500.500. |
 | it-money | aai-jane | Il totale è 1.500,50 euro. | Il totale è 1.50050 euro. | tts_fault | FAIL: Il totale è 1.50050 euro. |
 | de-dose | aai-jane | Nehmen Sie 2,5 mg täglich. | Name and C 25 mg täglich. | tts_fault | FAIL: Name and C 25 mg täglich. |
+| en-gb-date-slash | aai-audrey | Your appointment is on 03/04/2026. | Your appointment is on March 4th, 2026. | tts_fault | PASS |
+| en-gb-date-slash | aai-jane | Your appointment is on 03/04/2026. | Your appointment is on March 4th, 2026. | tts_fault | PASS |
+| en-ng-date-slash | aai-audrey | Your clinic visit is on 05/06/2026. | Your clinic visit is on May 6th, 2026. | tts_fault | PASS |
+| en-ng-date-slash | aai-jane | Your clinic visit is on 05/06/2026. | Your clinic visit is on May 6th, 2026. | tts_fault | PASS |
 | en-names-irish | aai-audrey | Siobhan, Aoife and Niamh joined the call. | Siobhan, Oifa, and Niamh join the call. | tts_fault | FAIL: Siobhan, Oifa, and Niamh join the call. |
 | en-names-irish | aai-jane | Siobhan, Aoife and Niamh joined the call. | Siobhan, Aifa, and Niamh joined the call. | tts_fault | FAIL: Siobhan, Aifa, and Niamh joined the call. |
 | en-names-global | aai-audrey | Xochitl, Nguyen, Chukwuemeka and Saoirse are here. | So Chitul, Nwen, Chukwuemeka, and Sirsha are here. | tts_fault | FAIL: So Chitul, Nwen, Chukwuemeka, and Sirsha are here. |
