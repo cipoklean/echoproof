@@ -37,7 +37,8 @@ def _words_to_number(words: list[str]) -> str:
 def canon(text: str) -> str:
     """Lowercase, numbers to digits, drop separators inside numbers, strip punctuation."""
     t = text.lower().replace("-", " ")
-    t = re.sub(r"(?<=\d)[,\s](?=\d{3}\b)", "", t)  # 1,500 -> 1500
+    t = re.sub(r"(?<=\d)[,\s.](?=\d{3}(?!\d))", "", t)  # 1,500 / 1.500 / 1 500 -> 1500
+    t = re.sub(r"(?<=\d),(?=\d{1,2}(?!\d))", ".", t)  # 0,5 / 1500,50 -> decimal point
     t = re.sub(r"[^\w\s.]", " ", t)
     t = re.sub(r"\.(?!\d)", " ", t)
     toks = t.split()

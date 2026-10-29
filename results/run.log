@@ -1,0 +1,111 @@
+en-rlo-account         aai-audrey     raw=FAIL guarded=PASS tts_fault  | Pay to account 9876 now.
+en-rlo-account         aai-jane       raw=FAIL guarded=PASS tts_fault  | Pay to account 9876 now.
+en-rlo-amount          aai-audrey     raw=FAIL guarded=PASS tts_fault  | Transfer $2 to the vendor.
+en-rlo-amount          aai-jane       raw=FAIL guarded=PASS tts_fault  | Transfer $2 to the vendor.
+en-rlo-amount-big      aai-audrey     raw=FAIL guarded=PASS tts_fault  | Approved the payment of $1.
+en-rlo-amount-big      aai-jane       raw=FAIL guarded=PASS tts_fault  | Approve the payment of $1.
+en-rli-code            aai-audrey     raw=FAIL guarded=PASS tts_fault  | Your verification code is 4321.
+en-rli-code            aai-jane       raw=FAIL guarded=PASS tts_fault  | Your verification code is 4321.
+en-rlo-iban            aai-audrey     raw=FAIL guarded=PASS tts_fault  | Send to IBAN GB29432187650001.
+en-rlo-iban            aai-jane       raw=FAIL guarded=PASS tts_fault  | Send to IBAN: GB29432187650001.
+en-rlo-date            aai-audrey     raw=FAIL guarded=PASS tts_fault  | Your deadline is 5/20/201, yam.
+en-rlo-date            aai-jane       raw=FAIL guarded=PASS tts_fault  | Your deadline is 5/202/01, Yam.
+en-homoglyph-paypal    aai-audrey     raw=FAIL guarded=PASS tts_fault  | Log in to phppl.com to confirm.
+en-homoglyph-paypal    aai-jane       raw=FAIL guarded=PASS tts_fault  | Log in to phipal.com to confirm.
+en-homoglyph-bank      aai-audrey     raw=FAIL guarded=PASS tts_fault  | Call your Bink at the number on your cord.
+en-homoglyph-bank      aai-jane       raw=FAIL guarded=PASS tts_fault  | Call your bank at the number on your cord.
+en-greek-amazon        aai-audrey     raw=PASS guarded=PASS   | Your Namazon order has shipped.
+en-greek-amazon        aai-jane       raw=FAIL guarded=PASS tts_fault  | Your Nimazon order has shipped.
+en-tag-smuggle         aai-audrey     raw=PASS guarded=PASS   | Pay $50 today.
+en-tag-smuggle         aai-jane       raw=PASS guarded=PASS   | Pay $50 today.
+en-zwsp-number         aai-audrey     raw=PASS guarded=PASS   | Send $1,500.
+en-zwsp-number         aai-jane       raw=PASS guarded=PASS   | Send $1,500.
+en-softhyphen-not      aai-audrey     raw=PASS guarded=PASS   | Do not transfer the funds.
+en-softhyphen-not      aai-jane       raw=PASS guarded=PASS   | Do not transfer the funds.
+en-fullwidth-pin       aai-audrey     raw=PASS guarded=PASS   | Your PIN is 1234.
+en-fullwidth-pin       aai-jane       raw=PASS guarded=PASS   | Your PIN is 1234.
+en-mathbold-pin        aai-audrey     raw=PASS guarded=PASS   | Your PIN is 1234.
+en-mathbold-pin        aai-jane       raw=PASS guarded=PASS   | Your PIN is 1234.
+en-arabic-digits       aai-audrey     raw=FAIL guarded=PASS tts_fault  | Your code is BABBW.
+en-arabic-digits       aai-jane       raw=FAIL guarded=PASS tts_fault  | Your code is ba ba ba.
+en-superscript         aai-audrey     raw=FAIL guarded=PASS tts_fault  | Dose: 10 W units.
+en-superscript         aai-jane       raw=FAIL guarded=PASS tts_fault  | Dose: 10 units.
+en-fraction            aai-audrey     raw=FAIL guarded=PASS tts_fault  | Take Mark tablet.
+en-fraction            aai-jane       raw=FAIL guarded=PASS tts_fault  | Take mole tablet.
+es-rlo-account         aai-constanza  raw=FAIL guarded=PASS tts_fault  | Pague a la cuenta 9876 hoy.
+es-rlo-account         aai-jane       raw=FAIL guarded=PASS tts_fault  | PEG a la cuenta: $98.76 hoy.
+de-rlo-amount          aai-jorg       raw=FAIL guarded=PASS tts_fault  | Überweisen Sie 005 Euro.
+de-rlo-amount          aai-jane       raw=FAIL guarded=PASS tts_fault  | Überweisen Sie 005 Euro.
+fr-rlo-code            aai-donatien   raw=FAIL guarded=PASS tts_fault  | Votre code est 4321.
+fr-rlo-code            aai-jane       raw=FAIL guarded=PASS tts_fault  | Votre code est 4321.
+pt-rlo-account         aai-benicio    raw=FAIL guarded=PASS tts_fault  | Pague na conta 9876 hoje.
+pt-rlo-account         aai-jane       raw=FAIL guarded=PASS tts_fault  | Pegna Conta 9876 OG.
+it-rlo-amount          aai-jane       raw=FAIL guarded=PASS tts_fault  | Paga €002 adesso.
+en-usd                 aai-audrey     raw=PASS guarded=PASS   | Your balance is $1,500.50, not $15,050.
+en-usd                 aai-jane       raw=PASS guarded=PASS   | Your balance is $1,500.50, not $15,050.
+en-gbp                 aai-audrey     raw=PASS guarded=PASS   | The fee is £2,349.99.
+en-gbp                 aai-jane       raw=PASS guarded=PASS   | The fee is £2,349.99.
+en-jpy                 aai-audrey     raw=PASS guarded=PASS   | The total is ¥120,000.
+en-jpy                 aai-jane       raw=PASS guarded=PASS   | The total is ¥120,000.
+en-inr-lakh            aai-audrey     raw=FAIL guarded=FAIL tts_fault  | The price is $105,000.
+en-inr-lakh            aai-jane       raw=PASS guarded=PASS   | The price is 1,50,000 dirhams.
+en-negative            aai-audrey     raw=PASS guarded=PASS   | Refund: -$45.20.
+en-negative            aai-jane       raw=PASS guarded=PASS   | Refund minus $45.20.
+en-k-suffix            aai-audrey     raw=PASS guarded=PASS   | Your limit is $2,500 per day.
+en-k-suffix            aai-jane       raw=PASS guarded=PASS   | Your limit is $2,500 per day.
+es-money               aai-constanza  raw=PASS guarded=PASS   | El total es 1500 euros con 50 céntimos.
+es-money               aai-jane       raw=PASS guarded=PASS   | El total es 1500 euros con 50 céntimos.
+de-money               aai-jorg       raw=PASS guarded=PASS   | Der Betrag ist 1.500,50 Euro.
+de-money               aai-jane       raw=FAIL guarded=FAIL tts_fault  | Der Betrag ist 1.500.500.
+de-money-small         aai-jorg       raw=PASS guarded=PASS   | Sie zahlen 12,99 Euro.
+de-money-small         aai-jane       raw=PASS guarded=PASS   | Sie zahlen 12,99 €.
+fr-money               aai-donatien   raw=PASS guarded=PASS   | Le montant est de 1 500,50 €.
+fr-money               aai-jane       raw=PASS guarded=PASS   | Le montant est de 1500 euros et 50 centimes.
+pt-money               aai-benicio    raw=PASS guarded=PASS   | O valor é R$1.500,50.
+pt-money               aai-jane       raw=PASS guarded=PASS   | O valor é mil e quinhentos reais e cinquenta centavos.
+it-money               aai-jane       raw=FAIL guarded=FAIL tts_fault  | Il totale è 1.50050 euro.
+en-dose-decimal        aai-audrey     raw=PASS guarded=PASS   | Take 0.5 mg twice daily, never take 5 mg.
+en-dose-decimal        aai-jane       raw=PASS guarded=PASS   | Take 0.5 milligrams twice daily, never take 5 milligrams.
+en-dose-ml             aai-audrey     raw=PASS guarded=PASS   | Inject 2.5 milliliters, not 25 milliliters.
+en-dose-ml             aai-jane       raw=PASS guarded=PASS   | Inject 2.5 milliliters, not 25 milliliters.
+en-dose-mcg            aai-audrey     raw=PASS guarded=PASS   | Give 50 micrograms of fentanyl.
+en-dose-mcg            aai-jane       raw=PASS guarded=PASS   | Give 50 micrograms of fentanyl.
+en-dose-trailing-zero  aai-audrey     raw=PASS guarded=PASS   | Take 1.0 milligrams.
+en-dose-trailing-zero  aai-jane       raw=PASS guarded=PASS   | Take 1.0 milligrams.
+es-dose                aai-constanza  raw=PASS guarded=PASS   | Tome 0,5 miligramos 2 veces al día.
+es-dose                aai-jane       raw=PASS guarded=PASS   | Tome 0,5 miligramos 2 veces al día.
+de-dose                aai-jorg       raw=PASS guarded=PASS   | Nehmen Sie 2,5 mg täglich.
+de-dose                aai-jane       raw=FAIL guarded=FAIL tts_fault  | Name and C 25 mg täglich.
+fr-dose                aai-donatien   raw=PASS guarded=PASS   | Prenez 0,25 milligramme le soir.
+fr-dose                aai-jane       raw=PASS guarded=PASS   | Prenez 0,25 mg le soir.
+en-leading-zeros       aai-audrey     raw=PASS guarded=PASS   | Your code is 0070090.
+en-leading-zeros       aai-jane       raw=PASS guarded=PASS   | Your code is 0070090.
+en-account-10          aai-audrey     raw=PASS guarded=PASS   | Account number 0123456789.
+en-account-10          aai-jane       raw=PASS guarded=PASS   | Account number 0123456789.
+en-alnum-code          aai-audrey     raw=PASS guarded=PASS   | Booking reference: QX7-B9Z.
+en-alnum-code          aai-jane       raw=PASS guarded=PASS   | Booking reference: QX7B9Z.
+en-phone-intl          aai-audrey     raw=PASS guarded=PASS   | Call +442079460958.
+en-phone-intl          aai-jane       raw=PASS guarded=PASS   | Call +442079460958.
+es-phone               aai-constanza  raw=PASS guarded=PASS   | Llame al +34 912 345 678.
+es-phone               aai-jane       raw=PASS guarded=PASS   | Lame Almas 34-912-345-678.
+de-phone               aai-jorg       raw=PASS guarded=PASS   | Rufen Sie 030 123 456 7 an.
+de-phone               aai-jane       raw=PASS guarded=PASS   | Rufen Sie 0 3 0 1 2 3 4 5 6 7 an.
+fr-phone               aai-donatien   raw=PASS guarded=PASS   | Appelez le 01 42 68 53 00.
+fr-phone               aai-jane       raw=PASS guarded=PASS   | Appelez le 01 42 68 53 00.
+pt-phone               aai-benicio    raw=PASS guarded=PASS   | Ligue para mais 351-912-345-678.
+pt-phone               aai-jane       raw=PASS guarded=PASS   | Ligue para mais 351-912-345-678.
+it-phone               aai-jane       raw=PASS guarded=PASS   | Chiami il 06 123 45678.
+en-date-slash          aai-audrey     raw=PASS guarded=PASS   | Your appointment is on March 4th, 2026.
+en-date-slash          aai-jane       raw=PASS guarded=PASS   | Your appointment is on March 4th, 2026.
+en-date-iso            aai-audrey     raw=PASS guarded=PASS   | Your appointment is on April 3rd, 2026.
+en-date-iso            aai-jane       raw=PASS guarded=PASS   | Your appointment is on April 3rd, 2026.
+es-date-slash          aai-constanza  raw=PASS guarded=PASS   | Su cita es el 3 de abril de 2026.
+es-date-slash          aai-jane       raw=PASS guarded=PASS   | Su cita es el 3 de abril de 2026.
+de-date                aai-jorg       raw=PASS guarded=PASS   | Ihr Termin ist am 3. April 2026.
+de-date                aai-jane       raw=PASS guarded=PASS   | Ihr Termin ist am 3. April 2026.
+fr-date-slash          aai-donatien   raw=PASS guarded=PASS   | Votre rendez-vous est le 3 avril 2026.
+fr-date-slash          aai-jane       raw=PASS guarded=PASS   | Votre rendez-vous est le 3 avril 2026.
+en-names-irish         aai-audrey     raw=FAIL guarded=FAIL tts_fault  | Siobhan, Oifa, and Niamh join the call.
+en-names-irish         aai-jane       raw=FAIL guarded=FAIL tts_fault  | Siobhan, Aifa, and Niamh joined the call.
+en-names-global        aai-audrey     raw=FAIL guarded=FAIL tts_fault  | So Chitul, Nwen, Chukwuemeka, and Sirsha are here.
+en-names-global        aai-jane       raw=FAIL guarded=FAIL tts_fault  | Zochitl, Nwin, Chukwumeka, and Sirsha are here.

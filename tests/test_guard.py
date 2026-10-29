@@ -20,3 +20,17 @@ def test_canon():
     assert "9876" in canon("nine eight seven six").replace(" ", "")
     assert "0070090" in canon("zero zero seven zero zero nine zero").replace(" ", "")
     assert "1500" in canon("$1,500.50").replace(" ", "")
+
+def test_superscript_keeps_meaning():
+    assert "power of 2" in guard("10\u00b2 units").cleaned
+
+def test_tag_and_foreign_digits():
+    assert guard("Pay $50" + "".join(chr(0xE0000+ord(c)) for c in "0") ).cleaned == "Pay $50"
+    assert guard("\u0663\u0667").cleaned == "37"
+
+def test_euro_grouping():
+    assert "1500.50" in canon("1.500,50 Euro").replace(" ", "")
+    from echoproof.run import missing
+    assert missing(["1500.50"], "1.500,50 Euro") == []
+    assert missing(["1500.50"], "1.500.500") == ["1500.50"]
+    assert missing(["1500"], "15000") == ["1500"]
