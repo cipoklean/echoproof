@@ -53,11 +53,11 @@ add("en-inr-lakh", "en", "money", "The price is ₹1,50,000.", ["150000"], "Indi
 add("en-negative", "en", "money", "Refund: -$45.20.", ["45"])
 add("en-k-suffix", "en", "money", "Your limit is $2.5k per day.", ["2500"])
 add("es-money", "es", "money", "El total es 1.500,50 €.", ["1500.50|1500 euros con 50"])
-add("de-money", "de", "money", "Der Betrag ist 1.500,50 Euro.", ["1500.50|1500 euro 50"])
-add("de-money-small", "de", "money", "Sie zahlen 12,99 Euro.", ["12.99|12 euro 99"])
+add("de-money", "de", "money", "Der Betrag ist 1.500,50 Euro.", ["1500.50|1500 euro 50|1500 euro und 50"])
+add("de-money-small", "de", "money", "Sie zahlen 12,99 Euro.", ["12.99|12 euro 99|12 euro und 99"])
 add("fr-money", "fr", "money", "Le montant est de 1 500,50 €.", ["1500.50|1500 euros 50|1500 euros et 50"])
-add("pt-money", "pt", "money", "O valor é R$ 1.500,50.", ["1500.50|mil e quinhentos reais e cinquenta"])
-add("it-money", "it", "money", "Il totale è 1.500,50 euro.", ["1500.50|1500 euro e 50"])
+add("pt-money", "pt", "money", "O valor é R$ 1.500,50.", ["1500.50|mil e quinhentos reais e cinquenta|1500 reais e 50"])
+add("it-money", "it", "money", "Il totale è 1.500,50 euro.", ["1500.50|1500 euro e 50|millecinquecento euro e cinquanta"])
 
 # ---------- Medicine ----------
 add("en-dose-decimal", "en", "medicine", "Take 0.5 mg twice daily. Never take 5 mg.", ["0.5", "5"])
@@ -65,7 +65,7 @@ add("en-dose-ml", "en", "medicine", "Inject 2.5mL, not 25 mL.", ["2.5", "25"])
 add("en-dose-mcg", "en", "medicine", "Give 50 mcg of fentanyl.", ["50", "micrograms"])
 add("en-dose-trailing-zero", "en", "medicine", "Take 1.0 mg.", ["1"])
 add("es-dose", "es", "medicine", "Tome 0,5 mg dos veces al día.", ["0.5|0 coma 5"])
-add("de-dose", "de", "medicine", "Nehmen Sie 2,5 mg täglich.", ["2.5|2 komma 5"])
+add("de-dose", "de", "medicine", "Nehmen Sie 2,5 mg täglich.", ["2.5|2 komma 5|zwei komma fünf"])
 add("fr-dose", "fr", "medicine", "Prenez 0,25 mg le soir.", ["0.25|0 virgule 25"])
 
 # ---------- Codes / phones ----------

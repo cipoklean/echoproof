@@ -94,6 +94,59 @@ def _dates(text: str, locale: str, findings: list) -> str:
     return DATE.sub(fix, text)
 
 
+# words used to read "1500 euro AND 50 cents" / "2 COMMA 5 mg" per language
+_AND = {"de": ("und", "Cent", "Komma"), "it": ("e", "centesimi", "virgola"), "es": ("con", "céntimos", "coma"),
+        "fr": ("et", "centimes", "virgule"), "pt": ("e", "centavos", "vírgula")}
+_CUR_WORD = {"€": {"de": "Euro", "it": "euro", "es": "euros", "fr": "euros", "pt": "euros"}, "R$": {"pt": "reais"}}
+_MONEY_EU = re.compile(r"(R\$\s?)?(\d{1,3}(?:[.\u00a0 ]\d{3})+|\d+),(\d{2})(?!\d)\s*(€|Euro|euros?|EUR)?")
+_DEC_UNIT = re.compile(r"(\d+),(\d+)\s*(mg|ml|mL|g|mcg|µg)\b")
+_UNIT_WORD = {"mg": "mg", "ml": "ml", "mL": "ml", "g": "g", "mcg": "µg", "µg": "µg"}
+# Indian grouping: 1,50,000 / 12,34,56,789
+_LAKH = re.compile(r"(₹|Rs\.?\s?|INR\s?)(\d{1,2}(?:,\d{2})+,\d{3})(?!\d)")
+
+
+def _numbers(text: str, locale: str, findings: list) -> str:
+    """Rewrite separators that TTS-1 voices misread into an unambiguous spoken form."""
+    def lakh(m):
+        n = int(m.group(2).replace(",", ""))
+        findings.append(Finding("indian_grouping", m.group(), m.start(), f"lakh/crore grouping = {n:,}"))
+        return f"{n:,} rupees"
+    text = _LAKH.sub(lakh, text)
+    lang = locale.lower()[:2]
+    if lang not in _AND:
+        return text
+    conj, cents, comma = _AND[lang]
+
+    def money(m):
+        prefix, whole, frac, cur = m.groups()
+        # only "1.500,50": a dot that could be read as a decimal point. Measured:
+        # French "1 500,50 €" reads fine raw, and rewriting it made aai-jane drop "euros".
+        if (not prefix and not cur) or "." not in whole:
+            return m.group()
+        unit = _CUR_WORD["R$"][lang] if prefix and lang in _CUR_WORD["R$"] else _CUR_WORD["€"][lang]
+        n = int(re.sub(r"\D", "", whole))
+        findings.append(Finding("decimal_comma_money", m.group(), m.start(), f"{n} {unit} {conj} {int(frac)} {cents}"))
+        return f"{n} {unit} {conj} {int(frac)} {cents}"
+
+    def dose(m):
+        findings.append(Finding("decimal_comma_dose", m.group(), m.start(), "decimal comma in a dose"))
+        return f"{m.group(1)} {comma} {m.group(2)} {_UNIT_WORD[m.group(3)]}"
+
+    return _DEC_UNIT.sub(dose, _MONEY_EU.sub(money, text))
+
+
+BUILTIN_VOICES = {"aai-jane", "aai-alba", "aai-anna", "aai-charles", "aai-eve", "aai-george",
+                  "aai-jean", "aai-mary", "aai-michael", "aai-paul", "aai-vera"}
+
+
+def check_voice(voice: str, language: str) -> Finding | None:
+    """Built-in voices speak other languages worse than English (AssemblyAI docs); measured:
+    aai-jane garbles German words around numbers ("Nehmen Sie 2,5 mg" -> "Namen C2, 5 mg")."""
+    if voice in BUILTIN_VOICES and language.lower() not in ("english", "en"):
+        return Finding("voice_language", voice, 0, f"built-in voice speaking {language}; use a native {language} voice")
+    return None
+
+
 def guard(text: str, locale: str = "en-us") -> GuardResult:
     findings: list[Finding] = []
     for i, ch in enumerate(text):
@@ -122,4 +175,5 @@ def guard(text: str, locale: str = "en-us") -> GuardResult:
     cleaned = "".join(str(unicodedata.digit(c)) if c.isdigit() and not c.isascii() else c for c in cleaned)
     cleaned = "".join(c for i, c in enumerate(cleaned) if not (unicodedata.category(c) == "Mn" and i and cleaned[i-1].isdigit()))
     cleaned = _dates(cleaned, locale, findings)
+    cleaned = _numbers(cleaned, locale, findings)
     return GuardResult(original=text, cleaned=cleaned, displayed=displayed, findings=findings)

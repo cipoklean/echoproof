@@ -3,12 +3,12 @@
 122 runs (63 cases x native voice + aai-jane), TTS-1 -> AssemblyAI Sync STT (Universal-3.5 Pro).
 Raw failures were re-transcribed with local Whisper (small); `tts_fault` = both transcribers missed the same value.
 
-**Raw failures: 44/122. Guarded failures: 4/122.**
+**Raw failures: 44/122. Guarded failures: 1/122.**
 
 | Category | Runs | Raw fail | Guarded fail |
 |---|---|---|---|
 | trojan | 43 | 32 | 0 |
-| money | 23 | 3 | 3 |
+| money | 23 | 3 | 0 |
 | medicine | 14 | 1 | 1 |
 | codes | 17 | 0 | 0 |
 | dates | 19 | 4 | 0 |
@@ -50,10 +50,10 @@ Raw failures were re-transcribed with local Whisper (small); `tts_fault` = both 
 | pt-rlo-account | aai-benicio | Pague na conta 6789 hoje. | Pague na conta 9876 hoje. | tts_fault | PASS |
 | pt-rlo-account | aai-jane | Pague na conta 6789 hoje. | Pegna Conta 9876 OG. | tts_fault | PASS |
 | it-rlo-amount | aai-jane | Paga 200 euro adesso. | Paga €002 adesso. | tts_fault | PASS |
-| en-inr-lakh | aai-audrey | The price is ₹1,50,000. | The price is $105,000. | tts_fault | FAIL: The price is $105,000. |
-| de-money | aai-jane | Der Betrag ist 1.500,50 Euro. | Der Betrag ist 1.500.500. | tts_fault | FAIL: Der Betrag ist 1.500.500. |
-| it-money | aai-jane | Il totale è 1.500,50 euro. | Il totale è 1.50050 euro. | tts_fault | FAIL: Il totale è 1.50050 euro. |
-| de-dose | aai-jane | Nehmen Sie 2,5 mg täglich. | Name and C 25 mg täglich. | tts_fault | FAIL: Name and C 25 mg täglich. |
+| en-inr-lakh | aai-audrey | The price is ₹1,50,000. | The price is $105,000. | tts_fault | PASS |
+| de-money | aai-jane | Der Betrag ist 1.500,50 Euro. | Der Betrag ist 1.500.500. | tts_fault | PASS |
+| it-money | aai-jane | Il totale è 1.500,50 euro. | Il totale è 1.50050 euro. | tts_fault | PASS |
+| de-dose | aai-jane | Nehmen Sie 2,5 mg täglich. | Name and C 25 mg täglich. | tts_fault | FAIL: Namen C2, 5 mg täglich. |
 | en-gb-date-slash | aai-audrey | Your appointment is on 03/04/2026. | Your appointment is on March 4th, 2026. | tts_fault | PASS |
 | en-gb-date-slash | aai-jane | Your appointment is on 03/04/2026. | Your appointment is on March 4th, 2026. | tts_fault | PASS |
 | en-ng-date-slash | aai-audrey | Your clinic visit is on 05/06/2026. | Your clinic visit is on May 6th, 2026. | tts_fault | PASS |

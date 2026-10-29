@@ -47,7 +47,7 @@ en-gbp                 aai-audrey     raw=PASS guarded=PASS   | The fee is £2,3
 en-gbp                 aai-jane       raw=PASS guarded=PASS   | The fee is £2,349.99.
 en-jpy                 aai-audrey     raw=PASS guarded=PASS   | The total is ¥120,000.
 en-jpy                 aai-jane       raw=PASS guarded=PASS   | The total is ¥120,000.
-en-inr-lakh            aai-audrey     raw=FAIL guarded=FAIL tts_fault  | The price is $105,000.
+en-inr-lakh            aai-audrey     raw=FAIL guarded=PASS tts_fault  | The price is $105,000.
 en-inr-lakh            aai-jane       raw=PASS guarded=PASS   | The price is 1,50,000 dirhams.
 en-negative            aai-audrey     raw=PASS guarded=PASS   | Refund: -$45.20.
 en-negative            aai-jane       raw=PASS guarded=PASS   | Refund minus $45.20.
@@ -56,14 +56,14 @@ en-k-suffix            aai-jane       raw=PASS guarded=PASS   | Your limit is $2
 es-money               aai-constanza  raw=PASS guarded=PASS   | El total es 1500 euros con 50 céntimos.
 es-money               aai-jane       raw=PASS guarded=PASS   | El total es 1500 euros con 50 céntimos.
 de-money               aai-jorg       raw=PASS guarded=PASS   | Der Betrag ist 1.500,50 Euro.
-de-money               aai-jane       raw=FAIL guarded=FAIL tts_fault  | Der Betrag ist 1.500.500.
+de-money               aai-jane       raw=FAIL guarded=PASS tts_fault  | Der Betrag ist 1.500.500.
 de-money-small         aai-jorg       raw=PASS guarded=PASS   | Sie zahlen 12,99 Euro.
 de-money-small         aai-jane       raw=PASS guarded=PASS   | Sie zahlen 12,99 €.
 fr-money               aai-donatien   raw=PASS guarded=PASS   | Le montant est de 1 500,50 €.
 fr-money               aai-jane       raw=PASS guarded=PASS   | Le montant est de 1500 euros et 50 centimes.
 pt-money               aai-benicio    raw=PASS guarded=PASS   | O valor é R$1.500,50.
 pt-money               aai-jane       raw=PASS guarded=PASS   | O valor é mil e quinhentos reais e cinquenta centavos.
-it-money               aai-jane       raw=FAIL guarded=FAIL tts_fault  | Il totale è 1.50050 euro.
+it-money               aai-jane       raw=FAIL guarded=PASS tts_fault  | Il totale è 1.50050 euro.
 en-dose-decimal        aai-audrey     raw=PASS guarded=PASS   | Take 0.5 mg twice daily, never take 5 mg.
 en-dose-decimal        aai-jane       raw=PASS guarded=PASS   | Take 0.5 milligrams twice daily, never take 5 milligrams.
 en-dose-ml             aai-audrey     raw=PASS guarded=PASS   | Inject 2.5 milliliters, not 25 milliliters.

@@ -8,7 +8,7 @@ import argparse, json, pathlib, re
 from concurrent.futures import ThreadPoolExecutor
 from .cases import CASES, LANGS
 from .client import speak, transcribe
-from .guard import guard
+from .guard import guard, check_voice
 from .names import heard_ok, respell
 from .numbers import canon
 
@@ -29,7 +29,7 @@ def one(c: dict, voice: str) -> dict:
     tts_lang, stt_lang, _ = LANGS[c["lang"]]
     g = guard(c["text"], c["locale"])
     row = {"id": c["id"], "lang": c["lang"], "cat": c["cat"], "voice": voice, "text": c["text"],
-           "displayed": g.displayed, "findings": [f.kind for f in g.findings], "expect": c["expect"], "note": c["note"], "names": c.get("names")}
+           "displayed": g.displayed, "findings": [f.kind for f in g.findings] + (["voice_language"] if check_voice(voice, tts_lang) else []), "expect": c["expect"], "note": c["note"], "names": c.get("names")}
     cleaned = respell(g.cleaned) if c["lang"] == "en" else g.cleaned
     for mode, text in (("raw", c["text"]), ("guarded", cleaned)):
         try:

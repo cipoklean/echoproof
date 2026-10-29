@@ -47,3 +47,10 @@ def test_names_lexicon():
     assert respell("Aoife and Niamh", {"Aoife": "Eefa", "Niamh": "Neev"}) == "Eefa and Neev"
     assert heard_ok("Saoirse", "Sirsha joined")      # correct sound, phonetic spelling
     assert not heard_ok("Aoife", "Haifa joined")      # wrong sound
+
+def test_locale_numbers():
+    assert guard("The price is ₹1,50,000.").cleaned == "The price is 150,000 rupees."
+    assert guard("Der Betrag ist 1.500,50 Euro.", "de").cleaned == "Der Betrag ist 1500 Euro und 50 Cent."
+    assert guard("Le montant est de 1 500,50 €.", "fr").cleaned == "Le montant est de 1 500,50 €."
+    from echoproof.guard import check_voice
+    assert check_voice("aai-jane", "german") and not check_voice("aai-jorg", "german")

@@ -21,6 +21,8 @@ EchoProof's guard speaks what the user actually sees: it resolves bidi overrides
 - Worst case: the screen shows **$10000**, TTS-1 says **"$1"** (`demo/screen-10000-voice-1.wav`).
 - Dates: TTS-1 reads English 03/04/2026 as March 4 for everyone. UK and Nigerian callers lose; the guard spells the date out by locale (4 raw failures, 0 guarded). Spanish, German, French, Portuguese and Italian already read day-first.
 - Names: TTS-1 has no pronunciation lexicon, so `python -m echoproof.names` searches respellings (Aoife -> Eefa, Niamh -> Neev, Xochitl -> Socheel, Siân -> Sharn) and keeps the ones an unprimed transcriber hears as the right sound. Names went from 4 failures to 0. Priming STT with the name as a keyterm is useless as a check: it "heard" every raw name correctly, even mispronounced ones.
+- Money: Indian lakh grouping (₹1,50,000 was spoken "$105,000") and "1.500,50 Euro" (the default voice said "1.500.500") are rewritten into plain spoken form. Money went from 3 failures to 0.
+- The one guarded failure left is the default voice mangling German words ("Nehmen Sie" -> "Namen C"). EchoProof flags any built-in voice speaking a language other than English (`check_voice`); the native German voice gets the same sentence right.
 - Every raw failure was re-checked by a second transcriber (local Whisper); each was confirmed as speech faults.
 
 Full table: [`results/REPORT.md`](results/REPORT.md).
