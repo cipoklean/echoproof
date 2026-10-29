@@ -1,0 +1,26 @@
+[
+ [
+  "1-hook",
+  "This screen says ten thousand dollars. Now listen to what the voice agent actually said."
+ ],
+ [
+  "2-problem",
+  "Voice agents show text and speak it at the same time. When the two disagree, the caller acts on the voice. A hidden character, a date, a name, an email address, and the caller hears something the screen never said."
+ ],
+ [
+  "3-demo",
+  "EchoProof proves it with real audio, on every single run. I pick a sentence. AssemblyAI TTS-1 speaks it as written, and then again after SayGuard fixes it. Then AssemblyAI Sync STT listens like the caller, and every risky value is checked, down to the second it was spoken."
+ ],
+ [
+  "4-long",
+  "It works on real messages too. A long clinic reminder with dates, money, phone numbers, an email and a link. And when something still comes out wrong, it stays red. Nothing is hidden."
+ ],
+ [
+  "5-results",
+  "Across forty-eight live runs, the caller heard a wrong value in forty-five of them as written. With SayGuard, just two. It's a Python library and a Pipecat processor, so it drops into any voice agent right before text to speech."
+ ],
+ [
+  "6-close",
+  "And this voiceover is my own cloned voice on AssemblyAI TTS-1, checked by SayGuard. EchoProof. What the caller hears matches what the screen shows."
+ ]
+]
