@@ -210,7 +210,14 @@ def _check(span: Span, heard: str) -> bool:
             return False
     span = Span(span.text, span.tokens, [x for x in span.expect if not x.startswith("cur:")], span.kind, span.name)
     heard = heard.replace("^", " to the power of ")
-    h = canon(heard)
+    for h in (canon(heard), " ".join(canon(t) for t in heard.split())):
+        if _match(span, heard, h):
+            return True
+    return False
+
+
+def _match(span: Span, heard: str, h: str) -> bool:
+    # h is the heard text canonicalised whole ("555 0132" joins) or token by token ("4, 2026" stays apart)
     hd = h.replace(" ", "")
     nums = [e for e in span.expect if not e.isalpha()]
     # only well-formed amounts like 1.500,50 / 1,500.50 / 1500,50 (not "1.50050" or "1.500.500")
