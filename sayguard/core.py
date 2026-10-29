@@ -267,6 +267,7 @@ def _check(span: Span, heard: str) -> bool:
             return False
     span = Span(span.text, span.tokens, [x for x in span.expect if not x.startswith("cur:")], span.kind, span.name)
     heard = heard.replace("^", " to the power of ")
+    heard = re.sub(r"(\d)\.00?(?!\d)", r"\1", heard)  # "$35.00" == "$35"
     for h in (canon(heard), " ".join(canon(t) for t in heard.split())):
         if _match(span, heard, h):
             return True
