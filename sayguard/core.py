@@ -91,6 +91,45 @@ def say_email(addr: str) -> str:
     return " ".join(out)
 
 
+URL_RE = re.compile(r"https?://[^\s<>\"']+[^\s<>\"'.,;:!?)]")
+
+
+def _say_part(part: str, known: bool = False) -> str:
+    if part.isdigit():
+        return " ".join(part) if len(part) > 2 else part
+    if known or (part.isalpha() and _common_word(part)):
+        return part.lower()
+    return "-".join(part.upper())
+
+
+def say_url(url: str) -> str:
+    """https://stmarys.example/join/8f3k -> "stmarys dot example slash join slash 8-F-3-K"
+    (the scheme is left unsaid, the way people read links aloud)."""
+    rest = re.sub(r"^https?://", "", url).rstrip("/")
+    host, _, path = rest.partition("/")
+    out = []
+    for i, part in enumerate(re.split(r"([.-])", host)):
+        if part in _SEP_WORDS:
+            out.append(_SEP_WORDS[part])
+        elif part:
+            out.append(_say_part(part, known=part.lower() in _DOMAIN_WORDS or part.lower() == "www"
+                                 or (part.isalpha() and len(part) >= 4)))
+    for seg in [x for x in path.split("/") if x]:
+        out.append("slash")
+        for part in re.split(r"([._-])", seg):
+            if part in _SEP_WORDS:
+                out.append(_SEP_WORDS[part])
+            elif part:
+                out.append(_say_part(part))
+    return " ".join(out)
+
+
+def heard_url(heard: str) -> str:
+    h = " " + heard.lower() + " "
+    h = h.replace(" forward slash ", "/").replace(" slash ", "/")
+    return re.sub(r"https?:/+", "", heard_email(h)).replace(" /", "/").replace("/ ", "/")
+
+
 def heard_email(heard: str) -> str:
     """Fold a transcript's spoken or spelled email back into one compact lowercase string."""
     h = " " + heard.lower() + " "
@@ -104,12 +143,13 @@ def _spans(spoken: str, names: dict[str, str], emails: list[tuple[str, str]] = (
     toks = spoken.split()
     respelled = {v.lower(): k for k, v in names.items()}
     risky, taken, email_spans = [], set(), []
-    for addr, said in emails:
+    for addr, said, *k in emails:
+        kind = k[0] if k else "email"
         st = said.split()
         for a in range(len(toks) - len(st) + 1):
             if [t.rstrip(".,;:!?") for t in toks[a:a + len(st)]] == st and a not in taken:
                 taken.update(range(a, a + len(st)))
-                email_spans.append(Span(addr, (a, a + len(st)), ["email:" + addr.lower()], "email", name=addr))
+                email_spans.append(Span(addr, (a, a + len(st)), [f"{kind}:" + addr.lower()], kind, name=addr))
                 break
     for i, t in enumerate(toks):
         if i in taken:
@@ -185,6 +225,12 @@ def sanitize(text: str, locale: str = "en-us", voice: str | None = None) -> Rece
             changes.append({"kind": "email_spelled", "at": spoken.find(addr), "found": addr,
                             "why": f'TTS-1 guesses at addresses; spell it: "{said}"'})
             spoken = spoken.replace(addr, said)
+        for url in dict.fromkeys(URL_RE.findall(spoken)):
+            said = say_url(url)
+            emails.append((url, said, "url"))
+            changes.append({"kind": "link_spelled", "at": spoken.find(url), "found": url,
+                            "why": f'TTS-1 guesses at link paths; say it: "{said}"'})
+            spoken = spoken.replace(url, said)
     warnings = []
     if voice:
         w = check_voice(voice, _lang(locale)[0])
@@ -276,6 +322,9 @@ def _check(span: Span, heard: str) -> bool:
         return heard_ok(span.name, heard)
     if span.kind == "email":
         return span.name.lower() in heard_email(heard)
+    if span.kind == "url":
+        want = re.sub(r"^https?://", "", span.name.lower()).rstrip("/")
+        return want in heard_url(heard)
     for e in [x for x in span.expect if x.startswith("cur:")]:
         w = e[4:]; sym = {"dollar": "$", "euro": "€", "pound": "£", "rupee": "₹"}[w]
         if sym not in heard and w not in heard.lower():
