@@ -320,10 +320,18 @@ def _check(span: Span, heard: str) -> bool:
     if span.kind == "name":
         return heard_ok(span.name, heard)
     if span.kind == "email":
-        return span.name.lower() in heard_email(heard)
+        h = heard_email(heard)
+        alnum = lambda x: re.sub(r"[^a-z0-9@]", "", x)
+        return span.name.lower() in h or alnum(span.name.lower()) in alnum(h)
     if span.kind == "url":
         want = re.sub(r"^https?://", "", span.name.lower()).rstrip("/")
-        return want in heard_url(heard)
+        h = heard_url(heard)
+        if want in h:
+            return True
+        # STT sometimes formats separators oddly ("stmarys- .example"): every letter and digit,
+        # in order, must still be there
+        alnum = lambda x: re.sub(r"[^a-z0-9/]", "", x)
+        return alnum(want) in alnum(h)
     for e in [x for x in span.expect if x.startswith("cur:")]:
         w = e[4:]; sym = {"dollar": "$", "euro": "€", "pound": "£", "rupee": "₹"}[w]
         if sym not in heard and w not in heard.lower():
