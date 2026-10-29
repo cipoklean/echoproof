@@ -83,3 +83,10 @@ def test_checker_regressions():
     assert _check(usd, "$35,") and not _check(usd, "$35.50")
     date = sanitize("Due 03/04/2026.", "en-us").spans[0]
     assert _check(date, "Due March 4, 2026") and not _check(date, "Due March 14, 2026")
+
+
+def test_phone_grouping_does_not_matter():
+    from sayguard.core import sanitize, _check
+    ph = sanitize("Call +44 20 7946 0958 now.", "en-gb").spans[0]
+    assert all(_check(ph, h) for h in ["Call +44 20 7946 0958", "Call +442079460958", "Call +44 207 946 0958"])
+    assert not _check(ph, "Call +44 207 946 0985")
