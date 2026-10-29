@@ -108,13 +108,12 @@
   "benchmark_raw_heard": "Your clinic visit is on May 6th, 2026."
  },
  {
-  "id": "en-names-3",
+  "id": "en-ng-names",
   "group": "Names",
-  "locale": "en-gb",
+  "locale": "en-ng",
   "lang": "en",
-  "text": "Oluwaseun and Siân have confirmed.",
-  "why": "Yoruba and Welsh names.",
-  "benchmark_raw_heard": "Oluwaseun and Seyi Onn have confirmed."
+  "text": "Oluwaseun and Seyi have confirmed.",
+  "why": "Yoruba name TTS-1 clips to 'Oluwasun'."
  },
  {
   "id": "de-rlo-amount",
