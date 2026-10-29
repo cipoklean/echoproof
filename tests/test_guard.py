@@ -106,6 +106,6 @@ def test_minus_time_and_may():
 def test_url_spoken_and_checked():
     from sayguard.core import sanitize, _check
     r = sanitize("Join at https://stmarys.example/join/8f3k.", "en-us")
-    assert "stmarys dot example slash join slash 8-F-3-K" in r.spoken
+    assert "S-T-M-A-R-Y-S dot example slash join slash 8-F-3-K" in r.spoken
     (u,) = [s for s in r.spans if s.kind == "url"]
     assert _check(u, "at stmarys.example/join/8F3K") and not _check(u, "https://stmarys.example/join")

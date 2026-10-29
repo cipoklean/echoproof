@@ -112,8 +112,7 @@ def say_url(url: str) -> str:
         if part in _SEP_WORDS:
             out.append(_SEP_WORDS[part])
         elif part:
-            out.append(_say_part(part, known=part.lower() in _DOMAIN_WORDS or part.lower() == "www"
-                                 or (part.isalpha() and len(part) >= 4)))
+            out.append(_say_part(part, known=part.lower() in _DOMAIN_WORDS or part.lower() == "www"))
     for seg in [x for x in path.split("/") if x]:
         out.append("slash")
         for part in re.split(r"([._-])", seg):
