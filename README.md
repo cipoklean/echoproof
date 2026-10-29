@@ -27,6 +27,8 @@ EchoProof's guard speaks what the user actually sees: it resolves bidi overrides
 
 Full table: [`results/REPORT.md`](results/REPORT.md).
 
+**Try it live:** https://echoproof-sigma.vercel.app — talk to a bank voice agent built entirely on AssemblyAI (Sync STT → LLM Gateway → SayGuard → TTS-1 over WebSocket → Sync STT check) and flip SayGuard off to hear the difference.
+
 ## SayGuard: use it in an agent
 
 ```python
