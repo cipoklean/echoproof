@@ -27,6 +27,21 @@ EchoProof's guard speaks what the user actually sees: it resolves bidi overrides
 
 Full table: [`results/REPORT.md`](results/REPORT.md).
 
+## SayGuard: use it in an agent
+
+```python
+from sayguard import sanitize, verify
+r = sanitize(agent_reply, locale="en-gb", voice="aai-audrey")  # offline, instant
+speak(r.spoken)                       # what the screen shows, safe to say
+r = verify(r, voice="aai-audrey")     # optional: TTS-1 word timings + Sync STT check per risky span
+```
+
+```
+python -m sayguard "Transfer $‮00001‬ to Aoife on 03/04/2026" --locale en-gb
+```
+
+Every call writes a receipt: what changed and why, the real audio, what AssemblyAI heard inside each risky span's time window, and what the caller would have heard without SayGuard. Real ones: [`demo/receipts/`](demo/receipts/README.md).
+
 ## How it works
 
 1. Each test case goes through AssemblyAI TTS-1 (`/v1/speech`).
