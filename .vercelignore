@@ -1,0 +1,8 @@
+cache/
+receipts/
+demo/
+results/
+tests/
+examples/
+docs/
+*.wav

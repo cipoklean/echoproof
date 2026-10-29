@@ -86,8 +86,9 @@ def _spans(spoken: str, names: dict[str, str]) -> list[Span]:
         elif kind == "domain":
             spans.append(Span(text, (a, b), [toks[a].strip(".,;:!?").split(".")[0].lower()], "domain"))
         else:
-            c = canon(text)
-            exp = re.findall(r"\d+(?:\.\d+)?", c) + re.findall(MONTHS.lower(), c)
+            fr = re.findall(r"\d+/\d+", text)
+            c = canon(re.sub(r"\d+/\d+", " ", text))
+            exp = fr + re.findall(r"\d+(?:\.\d+)?", c) + re.findall(MONTHS.lower(), c)
             spans.append(Span(text, (a, b), exp, "date" if any(m in c for m in MONTHS.lower().split("|")) else kind))
         i = j
     return spans
@@ -139,6 +140,46 @@ def _tts_events(text: str, voice: str, language: str, sr: int = 24000) -> tuple[
     return bytes(pcm), words, (time.perf_counter() - t0) * 1000
 
 
+async def _tts_ws_async(text: str, voice: str, language: str, sr: int = 24000):
+    import websockets
+    url = f"wss://tts.us.assemblyai.com/v1/ws?voice_id={voice}&language={language}&sample_rate={sr}&encoding=pcm_s16le"
+    pcm, words = bytearray(), []
+    async with websockets.connect(url, additional_headers=_headers(), open_timeout=10) as ws:
+        first = json.loads(await ws.recv())
+        if first["type"] == "Error":
+            raise RuntimeError(f"TTS ws: {first}")
+        await ws.send(json.dumps({"type": "Generate", "text": text}))
+        await ws.send(json.dumps({"type": "Flush"}))
+        await ws.send(json.dumps({"type": "Terminate"}))
+        async for raw in ws:
+            m = json.loads(raw)
+            if m["type"] == "Audio":
+                pcm += base64.b64decode(m["audio"])
+            elif m["type"] == "WordBoundaries":
+                words = m["words"]
+            elif m["type"] == "Termination":
+                break
+            elif m["type"] == "Error":
+                raise RuntimeError(f"TTS ws: {m}")
+    return bytes(pcm), words
+
+
+def tts(text: str, voice: str, language: str, sr: int = 24000) -> tuple[bytes, list[dict], float, str]:
+    """TTS-1 with word timings. WebSocket by default (SAYGUARD_TTS_TRANSPORT=ws|http);
+    falls back to the HTTP events route if the network blocks WebSocket frames."""
+    import asyncio
+    t0 = time.perf_counter()
+    if os.environ.get("SAYGUARD_TTS_TRANSPORT", "ws") == "ws":
+        try:
+            pcm, words = asyncio.run(asyncio.wait_for(_tts_ws_async(text, voice, language, sr), 20))
+            if pcm:
+                return pcm, words, (time.perf_counter() - t0) * 1000, "websocket"
+        except Exception:
+            pass
+    pcm, words, ms = _tts_events(text, voice, language, sr)
+    return pcm, words, (time.perf_counter() - t0) * 1000, "http"
+
+
 def _wav(pcm: bytes, path: pathlib.Path, sr: int = 24000):
     with wave.open(str(path), "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes(pcm)
@@ -165,6 +206,13 @@ def _check(span: Span, heard: str) -> bool:
     runs = [re.sub(r"\D", "", x) for x in re.findall(r"\d[\d.,]*\d|\d", heard) if money_re.match(x)]
     if nums and len(nums) > 1 and "".join(n.replace(".", "") for n in nums) in runs:
         nums = []  # "1500 Euro und 50 Cent" written back as "1.500,50 Euro"
+    fracs = [x for x in nums if "/" in x]
+    nums = [x for x in nums if "/" not in x]
+    for f in fracs:
+        a, b = f.split("/")
+        words = {"2": "half", "3": "third", "4": "quarter"}
+        if f not in heard and not (a == "1" and words.get(b, "@") in heard.lower()):
+            return False
     for e in [x for x in span.expect if x.isalpha()] + nums:
         if e.isalpha():
             if e not in h.replace(" ", ""):
@@ -183,7 +231,7 @@ def verify(r: Receipt, voice: str = "aai-audrey", compare_raw: bool = True, pad_
     rid = hashlib.sha256(f"{r.original}|{voice}|{r.locale}".encode()).hexdigest()[:10]
     d = OUT / rid; d.mkdir(parents=True, exist_ok=True)
 
-    pcm, words, tts_ms = _tts_events(r.spoken, voice, tts_lang)
+    pcm, words, tts_ms, transport = tts(r.spoken, voice, tts_lang)
     _wav(pcm, d / "sayguard.wav")
     stt, stt_ms = _stt(d / "sayguard.wav", stt_lang)
     heard_words = stt.get("words", [])
@@ -198,10 +246,10 @@ def verify(r: Receipt, voice: str = "aai-audrey", compare_raw: bool = True, pad_
         if not _check(s, s.heard):
             s.heard += "  [matched in full transcript]" if s.ok else ""
     v = {"id": rid, "voice": voice, "audio": str(d / "sayguard.wav"), "heard": stt.get("text", ""),
-         "tts_ms": round(tts_ms), "stt_ms": round(stt_ms), "audio_ms": stt.get("audio_duration_ms"),
+         "tts_ms": round(tts_ms), "tts_transport": transport, "stt_ms": round(stt_ms), "audio_ms": stt.get("audio_duration_ms"),
          "passed": all(s.ok for s in r.spans if s.ok is not None)}
     if compare_raw and r.original != r.spoken:
-        raw_pcm, _, _ = _tts_events(r.original, voice, tts_lang)
+        raw_pcm, _, _, _ = tts(r.original, voice, tts_lang)
         _wav(raw_pcm, d / "raw.wav")
         raw, _ = _stt(d / "raw.wav", stt_lang)
         v["raw_audio"], v["raw_heard"] = str(d / "raw.wav"), raw.get("text", "")
@@ -223,7 +271,7 @@ def render(r: Receipt) -> str:
         L += ["## Warnings", ""] + [f"- {w}" for w in r.warnings] + [""]
     if v:
         L += ["## Verified by AssemblyAI", "",
-              f"TTS-1 voice `{v['voice']}` ({v['tts_ms']} ms) -> Sync STT ({v['stt_ms']} ms). Caller heard: \"{v['heard']}\"", "",
+              f"TTS-1 voice `{v['voice']}` over {v.get('tts_transport','http')} ({v['tts_ms']} ms) -> Sync STT ({v['stt_ms']} ms). Caller heard: \"{v['heard']}\"", "",
               "| Span | Must hear | Spoken at | Heard there | Result |", "|---|---|---|---|---|"]
         for s in r.spans:
             at = f"{s.start_ms/1000:.2f}-{s.end_ms/1000:.2f}s" if s.start_ms is not None else "-"

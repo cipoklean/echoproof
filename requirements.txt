@@ -1,2 +1,5 @@
 requests>=2.31
+fastapi
+websockets>=14
+pydantic
 pytest>=8

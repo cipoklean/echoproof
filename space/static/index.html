@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EchoProof · SayGuard bank line</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--fg:#e6edf3;--mut:#8b949e;--ok:#3fb950;--bad:#f85149;--acc:#58a6ff;--warn:#d29922}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:18px 20px 6px;max-width:1100px;margin:auto}h1{margin:0;font-size:22px}header p{margin:4px 0 0;color:var(--mut)}
+main{max-width:1100px;margin:auto;padding:12px 20px 40px;display:grid;grid-template-columns:340px 1fr;gap:18px}
+@media(max-width:820px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs button{flex:1}
+button{background:#21262d;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer}
+button.on{background:var(--acc);color:#04111f;border-color:var(--acc);font-weight:600}
+.bank{border-radius:12px;background:#f6f8fa;color:#111;padding:14px}.bank h3{margin:0 0 8px;font-size:14px;color:#0969da}
+.row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #e1e4e8}.row:last-child{border:0}
+.row b{font-size:17px}.trick{font-size:13px;color:var(--mut);margin-top:10px}
+.switch{display:flex;align-items:center;justify-content:space-between;margin:14px 0 6px;padding:10px 12px;border-radius:10px;border:1px solid var(--line)}
+.switch.g{border-color:var(--ok)}.switch.r{border-color:var(--bad)}
+.talk{display:flex;gap:8px;margin-top:10px}.talk input{flex:1;background:#0d1117;border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:9px}
+#mic{width:100%;margin-top:10px;padding:14px;font-weight:600}#mic.rec{background:var(--bad);border-color:var(--bad)}
+.bubble{padding:10px 12px;border-radius:12px;margin:8px 0;max-width:92%}.me{background:#1f6feb33;margin-left:auto}.bot{background:#21262d}
+.lbl{font-size:12px;color:var(--mut);margin-bottom:2px}code{font-size:12px;word-break:break-all;color:#ffa657}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}td,th{padding:6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}.mut{color:var(--mut);font-size:13px}
+.verdict{font-size:20px;font-weight:700;margin:6px 0}.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);margin:2px 4px 2px 0;color:var(--mut)}
+audio{width:100%;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>EchoProof bank line</h1>
+  <p>Talk to a voice agent built on AssemblyAI. The screen and the voice should agree. Flip SayGuard off to hear what happens when they don't.</p>
+</header>
+<main>
+  <section class="card">
+    <div class="tabs" id="tabs"></div>
+    <div class="bank"><h3>Northwind Bank · <span id="who"></span></h3><div id="record"></div></div>
+    <div class="trick" id="trick"></div>
+    <div class="switch g" id="sw"><span><b>SayGuard</b> <span id="swl">on</span></span><button id="swb" class="on">On</button></div>
+    <button id="mic">Hold to talk</button>
+    <div class="talk"><input id="txt" placeholder="…or type what you'd say"><button id="send">Send</button></div>
+    <div class="mut" style="margin-top:10px">Pipeline: AssemblyAI Sync STT → LLM Gateway (<span id="llm">gemma</span>) → SayGuard → TTS-1 → Sync STT check of every amount, date, code and name.</div>
+  </section>
+  <section>
+    <div class="card" id="chat"><div class="mut">Pick a screen, then ask the agent about it. Try: <i id="hint"></i></div></div>
+    <div class="card" id="receipt" style="margin-top:14px;display:none"></div>
+  </section>
+</main>
+<script>
+let S={}, cur="invoice", guard=true, hist=[];
+const $=id=>document.getElementById(id);
+fetch("/api/scenarios").then(r=>r.json()).then(d=>{S=d;Object.entries(d).forEach(([k,v])=>{const b=document.createElement("button");b.textContent=v.title;b.onclick=()=>pick(k);b.id="t-"+k;$("tabs").appendChild(b)});pick(cur)});
+function pick(k){cur=k;hist=[];const s=S[k];document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.id=="t-"+k));
+ $("who").textContent=s.caller;$("record").innerHTML="";Object.entries(s.record).forEach(([a,b])=>{const r=document.createElement("div");r.className="row";r.innerHTML=`<span>${a}</span>`;const v=document.createElement("b");v.textContent=b;r.appendChild(v);$("record").appendChild(r)});
+ $("trick").textContent=s.trick;$("hint").textContent='"'+s.ask+'"';$("txt").value=s.ask;$("chat").innerHTML='<div class="mut">Ask the agent about this screen. Try: <i>"'+s.ask+'"</i></div>';$("receipt").style.display="none"}
+$("swb").onclick=()=>{guard=!guard;$("swb").textContent=guard?"On":"Off";$("swb").classList.toggle("on",guard);$("swl").textContent=guard?"on":"off";$("sw").className="switch "+(guard?"g":"r")};
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function bubble(cls,lbl,html){const d=document.createElement("div");d.className="bubble "+cls;d.innerHTML=`<div class="lbl">${lbl}</div>${html}`;$("chat").appendChild(d);d.scrollIntoView({behavior:"smooth",block:"end"});return d}
+async function send(payload){const wait=bubble("bot","Agent","…thinking, speaking, checking");
+ try{const r=await fetch("/api/turn",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({scenario:cur,sayguard:guard,history:hist,...payload})});const d=await r.json();wait.remove();
+  if(d.error){bubble("bot","Agent",esc(d.error));return}
+  if(payload.audio_b64)bubble("me","You (heard by AssemblyAI)",esc(d.user));
+  hist.push({role:"user",content:d.user},{role:"assistant",content:d.reply_raw});
+  const b=bubble("bot",`Agent · caller heard ${d.sayguard?"with":"<b>without</b>"} SayGuard`,`“${esc(d.heard)}”<audio controls autoplay src="data:audio/wav;base64,${d.audio}"></audio>`);
+  $("llm").textContent=d.llm;receipt(d)}catch(e){wait.remove();bubble("bot","Agent","Error: "+esc(String(e)))}}
+function receipt(d){const t=d.timings,R=$("receipt");R.style.display="block";
+ const rows=d.spans.map(s=>`<tr><td>${esc(s.text)}</td><td>${esc(s.expect.join(", "))}</td><td>${s.at?(s.at[0]/1000).toFixed(2)+"–"+(s.at[1]/1000).toFixed(2)+"s":"—"}</td><td>${esc(s.heard||"(full transcript)")}</td><td class="${s.ok?"ok":"bad"}">${s.ok?"PASS":"FAIL"}</td></tr>`).join("");
+ R.innerHTML=`<div class="lbl">Receipt</div><div class="verdict ${d.passed?"ok":"bad"}">${d.passed?"Caller heard what the screen shows":"Caller heard something different from the screen"}</div>
+ <div class="lbl">LLM wrote (exact characters)</div><code>${esc(d.reply_escaped)}</code>
+ <div class="lbl" style="margin-top:8px">Sent to TTS-1</div><div>${esc(d.spoken)}</div>
+ ${d.changes.length?`<div class="lbl" style="margin-top:8px">SayGuard changes</div>`+d.changes.map(c=>`<div class="mut">• <b>${esc(c.kind)}</b> ${esc(c.found)}: ${esc(c.why)}</div>`).join(""):""}
+ ${d.warnings.length?`<div class="lbl" style="margin-top:8px;color:var(--warn)">Warnings</div>`+d.warnings.map(w=>`<div class="mut">• ${esc(w)}</div>`).join(""):""}
+ <table><tr><th>Span</th><th>Must hear</th><th>Spoken at</th><th>Heard there</th><th></th></tr>${rows}</table>
+ <div style="margin-top:8px">${[["caller STT",t.caller_stt_ms],["LLM",t.llm_ms],["TTS-1 ("+d.transport+")",t.tts_ms],["check STT",t.check_stt_ms]].filter(x=>x[1]!=null).map(x=>`<span class="pill">${x[0]} ${Math.round(x[1])} ms</span>`).join("")}</div>`}
+$("send").onclick=()=>{const v=$("txt").value.trim();if(!v)return;bubble("me","You",esc(v));send({text:v})};
+$("txt").onkeydown=e=>{if(e.key=="Enter")$("send").click()};
+// mic: capture PCM, downsample to 16 kHz, wrap as WAV
+let ctx,proc,src,stream,chunks=[],rate;
+async function start(){stream=await navigator.mediaDevices.getUserMedia({audio:true});ctx=new AudioContext();rate=ctx.sampleRate;src=ctx.createMediaStreamSource(stream);proc=ctx.createScriptProcessor(4096,1,1);chunks=[];proc.onaudioprocess=e=>chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));src.connect(proc);proc.connect(ctx.destination);$("mic").classList.add("rec");$("mic").textContent="Listening… release to send"}
+function stop(){if(!ctx)return;proc.disconnect();src.disconnect();stream.getTracks().forEach(t=>t.stop());ctx.close();ctx=null;$("mic").classList.remove("rec");$("mic").textContent="Hold to talk";
+ const n=chunks.reduce((a,c)=>a+c.length,0),all=new Float32Array(n);let o=0;chunks.forEach(c=>{all.set(c,o);o+=c.length});
+ const ratio=rate/16000,len=Math.floor(n/ratio),pcm=new Int16Array(len);for(let i=0;i<len;i++){const v=Math.max(-1,Math.min(1,all[Math.floor(i*ratio)]));pcm[i]=v*32767}
+ if(len<8000)return;const buf=new ArrayBuffer(44+len*2),dv=new DataView(buf);const w=(p,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(p+i,s.charCodeAt(i))};
+ w(0,"RIFF");dv.setUint32(4,36+len*2,true);w(8,"WAVE");w(12,"fmt ");dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,16000,true);dv.setUint32(28,32000,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);w(36,"data");dv.setUint32(40,len*2,true);
+ new Int16Array(buf,44).set(pcm);let bin="";const u=new Uint8Array(buf);for(let i=0;i<u.length;i+=32768)bin+=String.fromCharCode.apply(null,u.subarray(i,i+32768));send({audio_b64:btoa(bin)})}
+const m=$("mic");m.onmousedown=start;m.onmouseup=stop;m.onmouseleave=stop;m.ontouchstart=e=>{e.preventDefault();start()};m.ontouchend=e=>{e.preventDefault();stop()};
+</script>
+</body>
+</html>
