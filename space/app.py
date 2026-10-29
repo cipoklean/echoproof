@@ -36,6 +36,13 @@ class Check(BaseModel):
     voice: str | None = None
 
 
+def _show_hidden(t: str) -> str:
+    """Make invisible and direction characters visible; leave °, ½, ₹ and accents as they are."""
+    import unicodedata
+    return "".join(f"\\u{ord(ch):04x}" if unicodedata.category(ch) in ("Cf", "Cc", "Co", "Zl", "Zp")
+                   or (unicodedata.category(ch) == "Zs" and ch != " ") else ch for ch in t)
+
+
 def _wav(pcm: bytes, sr=24000) -> bytes:
     b = io.BytesIO()
     with wave.open(b, "wb") as w:
@@ -96,7 +103,7 @@ def _check_text(c: Check):
         row["ok_raw"] = _check(s, raw["heard"])
         spans.append(row)
     strip = lambda d: {k: v for k, v in d.items() if k not in ("words", "heard_words")}
-    return {"text": r.original, "escaped": r.original.encode("unicode_escape").decode(),
+    return {"text": r.original, "escaped": _show_hidden(r.original),
             "displayed": r.displayed, "spoken": r.spoken, "unchanged": r.spoken == r.original,
             "changes": r.changes, "warnings": r.warnings, "spans": spans, "voice": voice, "locale": c.locale,
             "raw": strip(raw), "safe": strip(safe),

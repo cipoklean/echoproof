@@ -58,8 +58,19 @@ _DOMAIN_WORDS = {"com", "org", "net", "co", "uk", "ng", "edu", "gov", "io", "mai
 _SEP_WORDS = {".": "dot", "_": "underscore", "-": "dash", "+": "plus"}
 
 
+_WORDS = None
+
+
+def _common_word(w: str) -> bool:
+    global _WORDS
+    if _WORDS is None:
+        f = pathlib.Path(__file__).with_name("words.txt")
+        _WORDS = set(f.read_text().split()) if f.exists() else set()
+    return len(w) >= 4 and w.lower() in _WORDS
+
+
 def say_email(addr: str) -> str:
-    """jo.smith_92@mail.co.uk -> "J-O dot S-M-I-T-H underscore 92 at mail dot co dot uk".
+    """jo.smith_92@mail.co.uk -> "J-O dot smith underscore 92 at mail dot co dot uk".
     Spelled letters stop TTS-1 turning "jo" into "joe" or "eze" into "easy"."""
     local, domain = addr.split("@", 1)
     out = []
@@ -73,8 +84,8 @@ def say_email(addr: str) -> str:
                 out.append(_SEP_WORDS[part])
             elif part.isdigit():
                 out.append(" ".join(part) if len(part) > 2 else part)
-            elif side == "domain" and part.lower() in _DOMAIN_WORDS:
-                out.append(part.lower())
+            elif (side == "domain" and part.lower() in _DOMAIN_WORDS) or _common_word(part):
+                out.append(part.lower())  # real words are said; spelling them made STT drift
             else:
                 out.append("-".join(part.upper()))
     return " ".join(out)
@@ -106,7 +117,8 @@ def _spans(spoken: str, names: dict[str, str], emails: list[tuple[str, str]] = (
         bare = t.strip(".,;:!?()\"'").lower()
         if re.search(r"\d", t) or re.search(r"[$€£¥₹]", t):
             risky.append((i, "number"))
-        elif re.fullmatch(MONTHS, t.strip(".,"), re.I):
+        elif re.fullmatch(MONTHS, t.strip(".,"), re.I) and any(
+                re.search(r"\d", x) for x in toks[max(0, i - 1):i + 2]):  # "May 10", not "we may switch"
             risky.append((i, "date"))
         elif re.search(r"[a-z]\.[a-z]{2,}", bare):
             risky.append((i, "domain"))
@@ -133,7 +145,7 @@ def _spans(spoken: str, names: dict[str, str], emails: list[tuple[str, str]] = (
             spans.append(Span(text, (a, b), [toks[a].strip(".,;:!?").split(".")[0].lower()], "domain"))
         else:
             fr = re.findall(r"\d+/\d+", text)
-            rest = re.sub(r"\d+/\d+", " ", text)
+            rest = re.sub(r"\b(\d{1,2}):00\b", r"\1", re.sub(r"\d+/\d+", " ", text))  # 8:00 PM == 8 PM
             # canon each token on its own so "10, 2025" stays two numbers, but keep
             # number groups that canon must join ("1,500.50", "1.500,50") within one token
             c = " ".join(canon(tok) for tok in rest.split())
@@ -142,6 +154,9 @@ def _spans(spoken: str, names: dict[str, str], emails: list[tuple[str, str]] = (
             cur = [w for sym, w in (("$", "dollar"), ("€", "euro"), ("£", "pound"), ("₹", "rupee"))
                    if sym in text or w in text.lower()]
             exp += [f"cur:{w}" for w in cur]
+            m = re.match(r"^[-\u2212](\d+)", text)
+            if m:
+                exp.append("neg:" + m.group(1))  # "-5°C" must not be heard as "5°C"
             spans.append(Span(text, (a, b), exp, "date" if any(m in c for m in MONTHS.lower().split("|")) else kind))
         i = j
     return sorted(spans + email_spans, key=lambda x: x.tokens[0])
@@ -265,9 +280,14 @@ def _check(span: Span, heard: str) -> bool:
         w = e[4:]; sym = {"dollar": "$", "euro": "€", "pound": "£", "rupee": "₹"}[w]
         if sym not in heard and w not in heard.lower():
             return False
-    span = Span(span.text, span.tokens, [x for x in span.expect if not x.startswith("cur:")], span.kind, span.name)
+    for e in [x for x in span.expect if x.startswith("neg:")]:
+        n = e[4:]
+        if not re.search(rf"(?:[-\u2212]\s?|minus\s|negative\s){n}(?!\d)", heard, re.I):
+            return False
+    span = Span(span.text, span.tokens, [x for x in span.expect if not x.startswith(("cur:", "neg:"))], span.kind, span.name)
     heard = heard.replace("^", " to the power of ")
     heard = re.sub(r"(\d)\.00?(?!\d)", r"\1", heard)  # "$35.00" == "$35"
+    heard = re.sub(r"\b(\d{1,2}):00\b", r"\1", heard)
     for h in (canon(heard), " ".join(canon(t) for t in heard.split())):
         if _match(span, heard, h):
             return True

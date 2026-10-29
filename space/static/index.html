@@ -153,7 +153,8 @@ function show(d){$("out").style.display="block";const n=d.spans.length;
   if(d.unchanged&&!n){v.className="verdict neutral";v.textContent="Nothing risky found. SayGuard left this sentence alone."}
   else if(!d.raw_ok&&d.safe_ok){v.className="verdict ok";v.textContent="As written, the caller hears something different from the screen. SayGuard fixed it."}
   else if(d.raw_ok&&d.safe_ok){v.className="verdict ok";v.textContent="Both versions came through right this time. TTS output varies, which is why SayGuard checks every reply."}
-  else{v.className="verdict bad";v.textContent="Still wrong with SayGuard. See which value failed below."}
+  else{const fr=d.spans.filter(s=>!s.ok_raw).length,fs=d.spans.filter(s=>!s.ok_safe).length;
+    v.className="verdict bad";v.textContent=`As written, ${fr} of ${n} values came out wrong. With SayGuard, ${fs} still did. It's marked below.`}
   side("raw",d.raw,d.raw_ok,n);side("safe",d.safe,d.safe_ok,n);
   $("rawS").textContent=d.escaped;$("safeS").textContent=d.spoken;$("tr").textContent=d.safe.transport==="websocket"?"WebSocket":"HTTP";
   $("chk").style.display=n?"block":"none";

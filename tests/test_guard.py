@@ -67,7 +67,7 @@ def test_sayguard_sanitize_spans():
 def test_email_spelled_and_checked_exactly():
     from sayguard.core import sanitize, _check
     r = sanitize("Email jo.smith_92@mail.co.uk today.", "en-gb")
-    assert "J-O dot S-M-I-T-H underscore 92 at mail dot co dot uk" in r.spoken
+    assert "J-O dot smith underscore 92 at mail dot co dot uk" in r.spoken
     (e,) = [s for s in r.spans if s.kind == "email"]
     assert _check(e, "Email jo.smith_92@mail.co.uk today.")
     assert not _check(e, "Email joe.smith_92@mail.co.uk today.")
@@ -90,3 +90,14 @@ def test_phone_grouping_does_not_matter():
     ph = sanitize("Call +44 20 7946 0958 now.", "en-gb").spans[0]
     assert all(_check(ph, h) for h in ["Call +44 20 7946 0958", "Call +442079460958", "Call +44 207 946 0958"])
     assert not _check(ph, "Call +44 207 946 0985")
+
+
+def test_minus_time_and_may():
+    from sayguard.core import sanitize, _check
+    r = sanitize("Below -5°C we may switch. No food after 8:00 PM.", "en-us")
+    kinds = {s.text: s for s in r.spans}
+    assert "may" not in [s.text.lower() for s in r.spans]
+    neg = kinds["-5°C"]
+    assert _check(neg, "below -5°C") and _check(neg, "below minus 5 degrees") and not _check(neg, "below 5°C")
+    t = kinds["8:00"]
+    assert _check(t, "after 8 PM") and not _check(t, "after 9 PM")
