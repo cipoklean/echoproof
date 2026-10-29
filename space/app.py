@@ -70,6 +70,8 @@ def check(c: Check):
     try:
         return _check_text(c)
     except Exception as e:  # show the real reason instead of a bare 500
+        if "429" in str(e):
+            return JSONResponse({"error": "Too many people testing at once: AssemblyAI TTS-1 allows 50 voice requests a minute on this key. Try again in about 30 seconds."}, status_code=429)
         return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:200]}"}, status_code=502)
 
 

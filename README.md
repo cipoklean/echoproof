@@ -1,70 +1,82 @@
 # EchoProof
 
-Voice agents show text on screen and speak it out loud. EchoProof checks that the two match before a caller hears it.
+**What the caller hears matches what the screen shows.**
 
-## The attack: Trojan Speech
+Voice agents put text on a screen and speak it aloud. When the two disagree, the caller acts on the voice: the screen says $10000, the voice says "$1". EchoProof finds those gaps with real AssemblyAI audio, and **SayGuard** closes them before the words are spoken.
 
-Hidden Unicode can make the screen and the voice disagree:
+**Try it live:** https://echoproof-sigma.vercel.app
+Pick a sentence or type your own (up to 1,000 characters). The page speaks it twice through AssemblyAI TTS-1 (as written, and after SayGuard), transcribes both with AssemblyAI Sync STT, and checks every risky value: amounts, account numbers, dates, codes, doses, names, emails, links. Nothing is pre-recorded; every click is a fresh round trip.
 
-| Typed text | Screen shows | TTS reads |
-|---|---|---|
-| `Pay to account \u202e9876\u202c` | 6789 | 9 8 7 6 |
-| `p\u0430ypal.com` (Cyrillic a) | paypal.com | garbled |
+## Live results
 
-EchoProof's guard speaks what the user actually sees: it resolves bidi overrides, strips invisible characters, maps look-alike letters, and normalises full-width digits, then logs every finding.
+Every example on the page, run 3 times each against the deployed app: see [`results/LIVE.md`](results/LIVE.md), with every transcript in [`results/live.json`](results/live.json). Rerun it yourself with `python -m echoproof.livebench --runs 3`.
 
-## Results (Oct 29, 2026)
+Oct 29, 2026: 16 sentences x 3 runs = 48 real round trips, 0 errors.
 
-122 runs: 63 cases in all six TTS-1 languages, each spoken by a native catalog voice and the default `aai-jane`.
+- **As written: 45 of 48 runs** had a value the caller heard wrong.
+- **With SayGuard: 2 of 48.** Both misses are shown in the file: account 6789 transcribed as "$67.89", and Oluwaseun heard as "Oluwaseyan".
 
-- Trojan Speech: 32 of 43 raw runs failed; 0 failed after the guard.
-- Worst case: the screen shows **$10000**, TTS-1 says **"$1"** (`demo/screen-10000-voice-1.wav`).
-- Dates: TTS-1 reads English 03/04/2026 as March 4 for everyone. UK and Nigerian callers lose; the guard spells the date out by locale (4 raw failures, 0 guarded). Spanish, German, French, Portuguese and Italian already read day-first.
-- Names: TTS-1 has no pronunciation lexicon, so `python -m echoproof.names` searches respellings (Aoife -> Eefa, Niamh -> Neev, Xochitl -> Socheel, Siân -> Sharn) and keeps the ones an unprimed transcriber hears as the right sound. Names went from 4 failures to 0. Priming STT with the name as a keyterm is useless as a check: it "heard" every raw name correctly, even mispronounced ones.
-- Money: Indian lakh grouping (₹1,50,000 was spoken "$105,000") and "1.500,50 Euro" (the default voice said "1.500.500") are rewritten into plain spoken form. Money went from 3 failures to 0.
-- The one guarded failure left is the default voice mangling German words ("Nehmen Sie" -> "Namen C"). EchoProof flags any built-in voice speaking a language other than English (`check_voice`); the native German voice gets the same sentence right.
-- Every raw failure was re-checked by a second transcriber (local Whisper); each was confirmed as speech faults.
+What the caller heard without SayGuard, straight from those runs:
 
-Full table: [`results/REPORT.md`](results/REPORT.md).
+| On screen | Caller heard |
+|---|---|
+| Approved the payment of $10000 (hidden right-to-left mark) | "Approved the payment of $1." |
+| Log in to paypal.com (Cyrillic а) | "Log in to passchaipal.com" |
+| Your code is ٣٧٢٩ (Arabic-Indic digits) | "Your code is ba ba ba." |
+| Take ½ tablet | "Take Nerve Tablet." |
+| Send the receipt to k.nwosu-eze@unn.edu.ng | "k.nwosu-easy@un.edu.ng" |
+| Oluwaseun and Seyi have confirmed | "Oluwasun and Seyi have confirmed." |
+| Your appointment is on 04/03/2026 (UK caller) | "March 4th, 2026" |
 
-**Try it live:** https://echoproof-sigma.vercel.app — talk to a bank voice agent built entirely on AssemblyAI (Sync STT → LLM Gateway → SayGuard → TTS-1 over WebSocket → Sync STT check) and flip SayGuard off to hear the difference.
+## What SayGuard does
 
-## SayGuard: use it in an agent
+- **Hidden characters:** resolves right-to-left overrides, strips invisible marks, maps look-alike letters (Cyrillic, Greek, full-width) and foreign digits to what the reader actually sees.
+- **Dates by locale:** 03/04/2026 is March 4 in the US and 3 April in the UK and Nigeria; TTS-1 reads it the US way for everyone, so SayGuard writes it out for the caller's locale.
+- **Money and numbers:** Indian lakh grouping, European "1.500,50 €", fractions and superscripts become plain spoken words.
+- **Names:** TTS-1 has no pronunciation lexicon, so SayGuard respells names it mispronounces (Oluwaseun, Aoife, Niamh) using respellings an unprimed transcriber heard correctly.
+- **Emails and links:** real words are said, everything else is spelled ("front dot desk underscore 2 at S-T-M-A-R-Y-S dash clinic dot org").
+- **Receipt for every check:** what changed and why, both audio files, what the caller heard, and the time window each value was spoken in.
+
+## Honest limits
+
+The checker never hides a miss: if a value comes back wrong with SayGuard, the page marks it red. Known soft spots from real runs:
+
+- Spelled emails and links inside long passages are usually right but not always (a link in a 1,000-character reminder came back right in 2 of 3 runs).
+- Some names still fail after respelling now and then (Oluwaseun heard as "Oluwaseyan" in 1 of 3 live runs; "chiamaka" as "chamaka").
+- A bare 4-digit account number can be transcribed as money ("6789" as "$67.89") in 1 of 3 runs; the checker counts that as wrong.
+- The built-in English voices mangle German words; SayGuard flags any built-in voice speaking another language (`check_voice`). The native voices are fine.
+- The live page runs on one AssemblyAI key, which allows 50 TTS-1 requests a minute.
+
+## Use SayGuard in an agent
 
 ```python
 from sayguard import sanitize, verify
 r = sanitize(agent_reply, locale="en-gb", voice="aai-audrey")  # offline, instant
-speak(r.spoken)                       # what the screen shows, safe to say
-r = verify(r, voice="aai-audrey")     # optional: TTS-1 word timings + Sync STT check per risky span
+speak(r.spoken)                       # safe to say aloud
+r = verify(r, voice="aai-audrey")     # optional: TTS-1 + Sync STT check per risky value
 ```
 
 ```
 python -m sayguard "Transfer $‮00001‬ to Aoife on 03/04/2026" --locale en-gb
 ```
 
-Every call writes a receipt: what changed and why, the real audio, what AssemblyAI heard inside each risky span's time window, and what the caller would have heard without SayGuard. Real ones: [`demo/receipts/`](demo/receipts/README.md).
+**Pipecat:** `sayguard/pipecat.py` has `SayGuardProcessor`, which sits between the LLM and AssemblyAI TTS and guards each sentence as it streams. `examples/pipecat_proof.py` runs a real pipeline; its output is in [`demo/pipecat/`](demo/pipecat).
 
-## How it works
+## Built on AssemblyAI
 
-1. Each test case goes through AssemblyAI TTS-1 (`/v1/speech`).
-2. The audio is transcribed back with AssemblyAI Sync STT (Universal-3.5 Pro).
-3. Critical values (amounts, codes, doses, names) are compared after number normalisation.
-4. Every case runs twice: raw and guarded.
+- **TTS-1** speaks every sentence (WebSocket on the live page).
+- **Sync STT (Universal-3.5 Pro)** is the caller's ear: it transcribes what TTS-1 actually said, with word timings used to find each value in the audio.
+- The benchmark matrix (`python -m echoproof.run`, report in [`results/REPORT.md`](results/REPORT.md)) covers 63 cases across all six TTS-1 languages.
 
-## Run
+## Run it
 
 ```bash
 pip install -r requirements.txt
 export ASSEMBLYAI_API_KEY=...
-python -m echoproof.run            # full matrix
-python -m echoproof.report         # write results/REPORT.md
-python -m echoproof.names          # learn name respellings -> echoproof/lexicon.json
-python -m echoproof.run --only trojan
-python -m pytest -q                # offline guard tests
+uvicorn space.app:app            # the tester page on localhost:8000
+python -m echoproof.livebench    # live results against the deployed page
+python -m echoproof.run          # full benchmark matrix
+python -m pytest -q tests        # checker and guard tests
 ```
 
-Audio and transcripts are cached in `cache/` so reruns cost nothing.
-
-## Safety
-
-All numbers are fake. Findings are reported privately to AssemblyAI.
+All account numbers, names and emails in the examples are made up.
