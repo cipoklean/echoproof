@@ -14,7 +14,7 @@ HERE = pathlib.Path(__file__).parent
 EXAMPLES = json.loads((HERE / "examples.json").read_text())
 VOICES = {"en": "aai-audrey", "es": "aai-constanza", "de": "aai-jorg", "fr": "aai-donatien",
           "pt": "aai-benicio", "it": "aai-jane"}
-MAX_CHARS = 400
+MAX_CHARS = 1000
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
@@ -22,7 +22,7 @@ app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 
 @app.get("/")
 def index():
-    return FileResponse(HERE / "static" / "index.html")
+    return FileResponse(HERE / "static" / "index.html", headers={"Cache-Control": "no-cache"})
 
 
 @app.get("/api/examples")
@@ -60,6 +60,13 @@ def _speak_and_hear(text: str, voice: str, locale: str) -> dict:
 
 @app.post("/api/check")
 def check(c: Check):
+    try:
+        return _check_text(c)
+    except Exception as e:  # show the real reason instead of a bare 500
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:200]}"}, status_code=502)
+
+
+def _check_text(c: Check):
     text = c.text.strip()
     if not text:
         return JSONResponse({"error": "Type or pick a sentence first."}, status_code=400)
@@ -78,12 +85,13 @@ def check(c: Check):
         row = {"text": s.name or s.text, "kind": s.kind,
                "expect": [e[4:] + "s" if e.startswith("cur:") else e for e in s.expect]}
         if safe["words"]:
-            ws = [w for w in safe["words"][s.tokens[0]:s.tokens[1]] if w["end"] > w["start"]]
+            ws = [w for w in safe["words"][s.tokens[0]:s.tokens[1]]
+                  if w.get("end") is not None and w.get("start") is not None and w["end"] > w["start"]]
             if ws:
                 a, b = ws[0]["start"], ws[-1]["end"]
                 row["at"] = [a, b]
                 row["heard_safe"] = " ".join(w["text"] for w in safe["heard_words"]
-                                             if w["end"] >= a - 200 and w["start"] <= b + 200)
+                                             if w.get("end", -1) >= a - 200 and w.get("start", 10**9) <= b + 200)
         row["ok_safe"] = _check(s, row.get("heard_safe", "")) or _check(s, safe["heard"])
         row["ok_raw"] = _check(s, raw["heard"])
         spans.append(row)

@@ -137,7 +137,8 @@ def _spans(spoken: str, names: dict[str, str], emails: list[tuple[str, str]] = (
             # canon each token on its own so "10, 2025" stays two numbers, but keep
             # number groups that canon must join ("1,500.50", "1.500,50") within one token
             c = " ".join(canon(tok) for tok in rest.split())
-            exp = fr + re.findall(r"\d+(?:\.\d+)?", c) + re.findall(MONTHS.lower(), c)
+            nums = [re.sub(r"\.0+$", "", n) for n in re.findall(r"\d+(?:\.\d+)?", c)]  # $35.00 is heard as $35
+            exp = fr + nums + re.findall(MONTHS.lower(), c)
             cur = [w for sym, w in (("$", "dollar"), ("€", "euro"), ("£", "pound"), ("₹", "rupee"))
                    if sym in text or w in text.lower()]
             exp += [f"cur:{w}" for w in cur]
