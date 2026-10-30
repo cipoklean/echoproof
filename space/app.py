@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from sayguard.core import sanitize, tts, _stt, _check, _lang
+from sayguard.core import sanitize, tts, _stt, _check, _lang, ear_merge
 
 HERE = pathlib.Path(__file__).parent
 EXAMPLES = json.loads((HERE / "examples.json").read_text())
@@ -114,6 +114,12 @@ def _check_text(c: Check):
                                              if w.get("end", -1) >= a - 200 and w.get("start", 10**9) <= b + 200)
         row["ok_safe"] = _check(s, row.get("heard_safe", "")) or _check(s, safe["heard"])
         row["ok_raw"] = _check(s, raw["heard"])
+        for side, heard in (("raw", raw["heard"]), ("safe", safe["heard"])):
+            if not row["ok_" + side]:
+                merged = ear_merge(s, heard)
+                if merged:  # the voice said it right; the transcriber wrote it wrong
+                    row["ok_" + side] = True
+                    row["note_" + side] = f"STT wrote {merged}: a known AssemblyAI STT merge of '… hundred and N cents'"
         spans.append(row)
     strip = lambda d: {k: v for k, v in d.items() if k not in ("words", "heard_words")}
     return {"text": r.original, "escaped": _show_hidden(r.original),

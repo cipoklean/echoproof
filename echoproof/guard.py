@@ -71,6 +71,7 @@ MONTHS = ["January", "February", "March", "April", "May", "June", "July", "Augus
 # English locales that write day first. TTS-1 reads English slash dates month-first
 # (US); other TTS-1 languages already read them day-first.
 DAY_FIRST_EN = {"en-gb", "en-ng", "en-ie", "en-au", "en-nz", "en-in", "en-za", "en-ke", "en-gh"}
+ISO_DATE = re.compile(r"(?<![\w/-])(\d{4})-(\d{2})-(\d{2})(?![\w/-])")
 DATE = re.compile(r"\b(\d{1,2})[/.](\d{1,2})[/.](\d{4})\b")
 
 
@@ -91,7 +92,16 @@ def _dates(text: str, locale: str, findings: list) -> str:
                                     f"reads as {MONTHS[mo-1]} {d} in {locale}, {MONTHS[a-1 if day_first else b-1]} {b if day_first else a} elsewhere"))
         return f"{d} {MONTHS[mo-1]} {y}" if day_first else f"{MONTHS[mo-1]} {d}, {y}"
 
-    return DATE.sub(fix, text)
+    text = DATE.sub(fix, text)
+
+    def iso(m):  # 2026-11-02: unambiguous on screen, but TTS-1 may read it as digits or a code
+        y, mo, d = m.group(1), int(m.group(2)), int(m.group(3))
+        if not (1 <= mo <= 12 and 1 <= d <= 31):
+            return m.group()
+        findings.append(Finding("iso_date", m.group(), m.start(), "ISO date written the way it's said"))
+        return f"{d} {MONTHS[mo-1]} {y}" if day_first else f"{MONTHS[mo-1]} {d}, {y}"
+
+    return ISO_DATE.sub(iso, text)
 
 
 # words used to read "1500 euro AND 50 cents" / "2 COMMA 5 mg" per language

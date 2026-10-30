@@ -332,6 +332,11 @@ def _check(span: Span, heard: str) -> bool:
         # in order, must still be there
         alnum = lambda x: re.sub(r"[^a-z0-9/]", "", x)
         return alnum(want) in alnum(h)
+    if (re.fullmatch(r"[A-Za-z]{1,6}[-/][0-9A-Za-z/-]+", span.text) and len(re.sub(r"\D", "", span.text)) >= 4
+            and re.search(r"[-/]", span.text)):
+        # a reference code: callers write down its letters and digits; separators are rarely said
+        al = lambda x: re.sub(r"[^a-z0-9]", "", x.lower())
+        return al(span.text) in al(heard)
     for e in [x for x in span.expect if x.startswith("cur:")]:
         w = e[4:]; sym = {"dollar": "$", "euro": "€", "pound": "£", "rupee": "₹"}[w]
         if sym not in heard and w not in heard.lower():
@@ -348,6 +353,22 @@ def _check(span: Span, heard: str) -> bool:
         if _match(span, heard, h):
             return True
     return False
+
+
+def ear_merge(span: Span, heard: str) -> str | None:
+    """AssemblyAI STT writes 'three hundred dollars and eight cents' as '$308' when the dollars end
+    in hundreds (measured Oct 30, 2026: '$1,045,300.08' -> '$1,045,308', '$245,300.08' -> '$245,308';
+    a local Whisper heard '$1,045,300.08' from the same audio). Return the merged form if that is
+    what the ear wrote, so the page can say so instead of blaming the voice."""
+    m = re.fullmatch(r"[-\u2212]?[$£€](\d{1,3}(?:,\d{3})+|\d+)\.(\d{2})", span.text)
+    if not m or int(m.group(2)) == 0:
+        return None
+    whole, c = m.group(1).replace(",", ""), str(int(m.group(2)))
+    if not whole.endswith("0" * len(c)):
+        return None
+    merged = whole[: len(whole) - len(c)] + c
+    digits = [re.sub(r"\D", "", x) for x in re.findall(r"\d[\d,]*", heard)]
+    return f"{int(merged):,}" if merged in digits else None
 
 
 def _match(span: Span, heard: str, h: str) -> bool:

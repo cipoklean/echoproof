@@ -109,3 +109,15 @@ def test_url_spoken_and_checked():
     assert "S-T-M-A-R-Y-S dot example slash join slash 8-F-3-K" in r.spoken
     (u,) = [s for s in r.spans if s.kind == "url"]
     assert _check(u, "at stmarys.example/join/8F3K") and not _check(u, "https://stmarys.example/join")
+
+
+def test_iso_date_code_and_ear_merge():
+    from sayguard.core import sanitize, _check, ear_merge
+    r = sanitize("Charged on 2026-11-02. Balance -$1,045,300.08. Reference: INV-2026/11/0093.", "en-ng")
+    assert "2 November 2026" in r.spoken
+    by = {s.text: s for s in r.spans}
+    inv = by["INV-2026/11/0093"]
+    assert _check(inv, "Reference: INV 2026-110093.") and not _check(inv, "Reference: INV 2026-11-0039.")
+    money = by["-$1,045,300.08"]
+    assert ear_merge(money, "Your balance is -$1,045,308.") == "1,045,308"
+    assert ear_merge(money, "Your balance is -$1,045,309.") is None

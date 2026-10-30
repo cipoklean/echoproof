@@ -162,8 +162,8 @@ function show(d){$("out").style.display="block";const n=d.spans.length;
   $("rawS").textContent=d.escaped;$("safeS").textContent=d.spoken;$("tr").textContent=d.safe.transport==="websocket"?"WebSocket":"HTTP";
   $("chk").style.display=n?"block":"none";
   $("rows").innerHTML=d.spans.map(s=>`<tr><td dir="auto"><b>${esc(s.text)}</b></td>
-    <td class="tag ${s.ok_raw?"ok":"bad"}">${s.ok_raw?"✓ heard":"✗ wrong"}</td>
-    <td><span class="tag ${s.ok_safe?"ok":"bad"}">${s.ok_safe?"✓":"✗"}</span> ${s.heard_safe?`“${esc(s.heard_safe)}”`:""}${s.at?`<div class="sent">at ${(s.at[0]/1000).toFixed(2)}–${(s.at[1]/1000).toFixed(2)}s</div>`:""}</td></tr>`).join("");
+    <td class="tag ${s.ok_raw?"ok":"bad"}">${s.ok_raw?"✓ heard":"✗ wrong"}${s.note_raw?`<div class="sent">${esc(s.note_raw)}</div>`:""}</td>
+    <td><span class="tag ${s.ok_safe?"ok":"bad"}">${s.ok_safe?"✓":"✗"}</span> ${s.heard_safe?`“${esc(s.heard_safe)}”`:""}${s.note_safe?`<div class="sent">${esc(s.note_safe)}</div>`:""}${s.at?`<div class="sent">at ${(s.at[0]/1000).toFixed(2)}–${(s.at[1]/1000).toFixed(2)}s</div>`:""}</td></tr>`).join("");
   $("pills").innerHTML=[["Voice",d.voice],["TTS-1",d.safe.tts_ms+" ms"],["STT",d.safe.stt_ms+" ms"]].map(p=>`<span class="pill">${p[0]}: ${esc(p[1])}</span>`).join("");
   $("chg").style.display=(d.changes.length||d.warnings.length)?"block":"none";
   $("changes").innerHTML=d.changes.map(c=>`<div class="change"><span class="ck">${esc(c.kind.replace(/_/g," "))}</span><div><b dir="auto">${esc(c.found)}</b> · ${esc(c.why)}</div></div>`).join("");
