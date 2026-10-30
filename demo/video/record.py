@@ -19,8 +19,8 @@ def wav_dur(p):
 class Scene:
     def __init__(self, p, name):
         self.name = name
-        self.ctx = p.chromium.launch(proxy=PROXY).new_context(
-            viewport={"width": 1280, "height": 720}, record_video_dir=str(B / "raw"),
+        self.ctx = p.chromium.launch(proxy=PROXY, args=["--autoplay-policy=no-user-gesture-required"]).new_context(
+            viewport={"width": 1280, "height": 720}, ignore_https_errors=True, record_video_dir=str(B / "raw"),
             record_video_size={"width": 1280, "height": 720})
         self.page = self.ctx.new_page()
         self.vstart = self.t0 = time.monotonic()
@@ -41,6 +41,9 @@ class Scene:
 
     def mark(self, k):
         self.ev[k] = round(self.now(), 2)
+        if k in ("play_raw", "play_safe"):  # move the on-page player too (the sound is mixed in later)
+            el = "rawA" if k == "play_raw" else "safeA"
+            self.page.evaluate(f"(()=>{{const a=document.getElementById('{el}');a.muted=true;a.currentTime=0;a.play()}})()")
 
     def hold_until(self, t):
         while self.now() < t:
@@ -49,7 +52,7 @@ class Scene:
     def open(self):
         self.page.goto(URL, timeout=60000)
         self.page.wait_for_selector(".chip")
-        self.page.add_style_tag(content="html{scroll-behavior:smooth}")
+        self.page.add_style_tag(content="html{scroll-behavior:smooth;zoom:1.42}")
         self.page.wait_for_timeout(400)
         self.t0 = time.monotonic()  # timeline starts once the page is ready
         self.ev["lead"] = round(self.t0 - self.vstart, 2)
@@ -136,7 +139,10 @@ def s4(p):
 def s5(p):
     s = Scene(p, "s5")
     s.page.goto("https://github.com/cipoklean/echoproof/blob/main/results/LIVE.md", timeout=60000)
-    s.page.wait_for_timeout(1500); s.t0 = time.monotonic(); s.ev["lead"] = round(s.t0 - s.vstart, 2)
+    s.page.wait_for_timeout(1500)
+    s.page.add_style_tag(content="#repos-file-tree,[aria-label='File Tree Navigation'],nav[aria-label*='File'],div[class*='FileTree'],div[data-testid*='tree']{display:none!important}")
+    s.page.evaluate("document.querySelector('article.markdown-body')?.scrollIntoView({block:'start'})")
+    s.page.wait_for_timeout(800); s.t0 = time.monotonic(); s.ev["lead"] = round(s.t0 - s.vstart, 2)
     s.hold_until(1.0); s.glide(450, VO["s5"] * 0.6); s.hold_until(VO["s5"] + 0.6); s.close()
 
 
