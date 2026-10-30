@@ -11,10 +11,10 @@ Pick a sentence or type your own (up to 1,000 characters). The page speaks it tw
 
 Every example on the page, run 3 times each against the deployed app: see [`results/LIVE.md`](results/LIVE.md), with every transcript in [`results/live.json`](results/live.json). Rerun it yourself with `python -m echoproof.livebench --runs 3`.
 
-Oct 29, 2026: 16 sentences x 3 runs = 48 real round trips, 0 errors.
+Oct 30, 2026: 16 sentences x 3 runs = 48 real round trips, 0 errors.
 
-- **As written: 45 of 48 runs** had a value the caller heard wrong.
-- **With SayGuard: 2 of 48.** Both misses are shown in the file: account 6789 transcribed as "$67.89", and Oluwaseun heard as "Oluwaseyan".
+- **As written: 48 of 48 runs** had a value the caller heard wrong.
+- **With SayGuard: 2 of 48.** Both misses are in the file: the Italian amount heard as "25,50 euro", and Oluwaseun heard as "Oluwaseyun".
 
 What the caller heard without SayGuard, straight from those runs:
 
@@ -43,7 +43,8 @@ The checker never hides a miss: if a value comes back wrong with SayGuard, the p
 
 - Spelled emails and links inside long passages are usually right but not always (a link in a 1,000-character reminder came back right in 2 of 3 runs).
 - Some names still fail after respelling now and then (Oluwaseun heard as "Oluwaseyan" in 1 of 3 live runs; "chiamaka" as "chamaka").
-- A bare 4-digit account number can be transcribed as money ("6789" as "$67.89") in 1 of 3 runs; the checker counts that as wrong.
+- A bare 4-digit account number can be transcribed as money ("6789" as "$67.89"); the checker counts that as wrong.
+- The ear can be wrong too: AssemblyAI STT writes "three hundred dollars and eight cents" as "$308" when the dollars end in hundreds ($1,045,300.08 becomes $1,045,308; a local Whisper heard the same audio correctly). The page labels that case instead of blaming the voice.
 - The built-in English voices mangle German words; SayGuard flags any built-in voice speaking another language (`check_voice`). The native voices are fine.
 - The live page runs on one AssemblyAI key, which allows 50 TTS-1 requests a minute.
 

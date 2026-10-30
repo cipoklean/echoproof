@@ -25,7 +25,7 @@ def main():
                 d = requests.post(a.url + "/api/check", json={"text": c["text"], "locale": c["locale"]}, timeout=170).json()
             except Exception as e:
                 d = {"error": str(e)}
-            if "429" not in str(d.get("error", "")):
+            if not any(k in str(d.get("error", "")) for k in ("429", "Too many")):
                 break
             time.sleep(35)  # TTS-1 allows 50 requests a minute per account
         if "error" in d:
@@ -41,7 +41,7 @@ def main():
         rows, stamp = saved["runs"], saved["when"]
         a.runs = max(sum(r["id"] == c["id"] for r in rows) for c in cases)
     else:
-        with ThreadPoolExecutor(3) as p:
+        with ThreadPoolExecutor(2) as p:
             rows = list(p.map(go, jobs))
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
         (ROOT / "results/live.json").write_text(json.dumps({"when": stamp, "url": a.url, "runs": rows}, indent=1, ensure_ascii=False))

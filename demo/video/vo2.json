@@ -1,0 +1,10 @@
+{
+ "s1a": "Okay, so... this screen says ten thousand dollars. Now listen to what the voice actually says.",
+ "s1b": "Yeah. One dollar. Same text, one hidden character, and the caller hears something totally different.",
+ "s2": "Voice agents show you text and, um, speak it at the same time. And when those two don't match, people act on the voice. A hidden character, a date, a name, an email... that's all it takes.",
+ "s3a": "So I built EchoProof. I pick a sentence, and it runs for real. AssemblyAI TTS-1 speaks it as written, then again after SayGuard fixes it. And Sync STT listens, the way a caller would.",
+ "s3b": "And that's my own cloned voice, by the way. Every risky value gets checked, down to the second it was spoken.",
+ "s4": "And it's not just tricks. This is a real clinic reminder... dates, money, phone numbers, an email, a link. If something still comes out wrong, it stays red. I don't hide it.",
+ "s5": "Across forty-eight live runs, every single one had a wrong value as written. With SayGuard? Just two. It's a Python library and a Pipecat processor, so it slots right in, just before text to speech.",
+ "s6": "EchoProof. What the caller hears matches what the screen shows."
+}
