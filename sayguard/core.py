@@ -123,6 +123,9 @@ def say_url(url: str) -> str:
     return " ".join(out)
 
 
+IBAN_RE = re.compile(r"\b[A-Z]{2}\d{2}(?: [A-Z0-9]{4}){2,7}(?: [A-Z0-9]{1,4})?\b")
+
+
 def heard_url(heard: str) -> str:
     h = " " + heard.lower() + " "
     h = h.replace(" forward slash ", "/").replace(" slash ", "/")
@@ -144,7 +147,7 @@ def _spans(spoken: str, names: dict[str, str], emails: list[tuple[str, str]] = (
     risky, taken, email_spans = [], set(), []
     for addr, said, *k in emails:
         kind = k[0] if k else "email"
-        st = said.split()
+        st = [t.rstrip(".,;:!?") for t in said.split()]
         for a in range(len(toks) - len(st) + 1):
             if [t.rstrip(".,;:!?") for t in toks[a:a + len(st)]] == st and a not in taken:
                 taken.update(range(a, a + len(st)))
@@ -230,6 +233,12 @@ def sanitize(text: str, locale: str = "en-us", voice: str | None = None) -> Rece
             changes.append({"kind": "link_spelled", "at": spoken.find(url), "found": url,
                             "why": f'TTS-1 guesses at link paths; say it: "{said}"'})
             spoken = spoken.replace(url, said)
+        for iban in dict.fromkeys(m.group() for m in IBAN_RE.finditer(spoken)):
+            said = ", ".join("-".join(g) for g in iban.split())
+            emails.append((iban, said, "iban"))
+            changes.append({"kind": "iban_spelled", "at": spoken.find(iban), "found": iban,
+                            "why": "long IBANs get letters and digits dropped in long messages; read it group by group"})
+            spoken = spoken.replace(iban, said)
     warnings = []
     if voice:
         w = check_voice(voice, _lang(locale)[0])
@@ -323,6 +332,9 @@ def _check(span: Span, heard: str) -> bool:
         h = heard_email(heard)
         alnum = lambda x: re.sub(r"[^a-z0-9@]", "", x)
         return span.name.lower() in h or alnum(span.name.lower()) in alnum(h)
+    if span.kind == "iban":
+        al = lambda x: re.sub(r"[^a-z0-9]", "", x.lower())
+        return al(span.name) in al(heard)
     if span.kind == "url":
         want = re.sub(r"^https?://", "", span.name.lower()).rstrip("/")
         h = heard_url(heard)
