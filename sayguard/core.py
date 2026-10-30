@@ -123,6 +123,7 @@ def say_url(url: str) -> str:
     return " ".join(out)
 
 
+CODE_RE = re.compile(r"(?<![\w-])\d{3,4}-\d{3,4}(?![\w-])")
 IBAN_RE = re.compile(r"\b[A-Z]{2}\d{2}(?: [A-Z0-9]{4}){2,7}(?: [A-Z0-9]{1,4})?\b")
 
 
@@ -233,6 +234,12 @@ def sanitize(text: str, locale: str = "en-us", voice: str | None = None) -> Rece
             changes.append({"kind": "link_spelled", "at": spoken.find(url), "found": url,
                             "why": f'TTS-1 guesses at link paths; say it: "{said}"'})
             spoken = spoken.replace(url, said)
+        for code in dict.fromkeys(m.group() for m in CODE_RE.finditer(spoken)):
+            said = ", ".join("-".join(g) for g in code.split("-"))
+            emails.append((code, said, "iban"))
+            changes.append({"kind": "code_spelled", "at": spoken.find(code), "found": code,
+                            "why": "a split code like 918-204 can lose its second half in a long message; read it digit by digit"})
+            spoken = spoken.replace(code, said)
         for iban in dict.fromkeys(m.group() for m in IBAN_RE.finditer(spoken)):
             said = ", ".join("-".join(g) for g in iban.split())
             emails.append((iban, said, "iban"))
